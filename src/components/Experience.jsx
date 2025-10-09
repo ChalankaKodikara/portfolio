@@ -18,49 +18,53 @@ export default function Experience() {
   }, []);
 
   return (
-    <section id="experience" className="mx-auto max-w-6xl px-4 sm:px-6 py-16">
-      <h2 className="text-3xl font-bold mb-8">Professional Experience</h2>
+    <section id="experience" className="mx-auto max-w-5xl px-4 sm:px-6 py-16">
+      <h2 className="text-3xl font-bold mb-10">Professional Experience</h2>
 
-      <div className="grid gap-6">
-        {items.map((it) => (
-          <div
-            key={it.id}
-            className="group flex flex-col sm:flex-row items-start gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition"
-          >
-            {/* Left company image */}
-            {it.companyLogo && (
-              <div className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden bg-slate-50 ring-1 ring-slate-200">
-                <img
-                  src={`http://localhost:4000${it.companyLogo}`}
-                  alt={it.company}
-                  className="w-full h-full object-cover"
-                />
+      <div className="relative border-l-2 border-slate-200 ml-6">
+        {items.map((it, idx) => (
+          <div key={it.id} className="relative pl-10 pb-12">
+            {/* Timeline circle */}
+            <span className="absolute -left-[7px] top-1.5 w-3.5 h-3.5 rounded-full bg-blue-500 border-2 border-white shadow-sm"></span>
+
+            {/* Experience Card */}
+            <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition">
+              <div className="flex items-center gap-4">
+                {it.companyLogo && (
+                  <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-slate-50 ring-1 ring-slate-200">
+                    <img
+                      src={`http://localhost:4000${it.companyLogo}`}
+                      alt={it.company}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    {it.title}
+                  </h3>
+                  <p className="text-sm text-slate-500">
+                    {it.company} • {it.location || "Sri Lanka"}{" "}
+                    {it.workType ? `• ${it.workType}` : ""}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {formatDate(it.startDate)} –{" "}
+                    {it.present ? "Present" : formatDate(it.endDate)} •{" "}
+                    {calculateDuration(it.startDate, it.endDate)}
+                  </p>
+                </div>
               </div>
-            )}
-
-            {/* Right content */}
-            <div className="flex-1">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h3 className="text-lg font-semibold text-slate-900">
-                  {it.title}
-                </h3>
-                <p className="text-sm text-slate-500 mt-1 sm:mt-0">
-                  {formatDate(it.startDate)} –{" "}
-                  {it.present ? "Present" : formatDate(it.endDate)} •{" "}
-                  {calculateDuration(it.startDate, it.endDate)}
-                </p>
-              </div>
-
-              <p className="text-sm text-slate-500 mt-0.5">
-                {it.company} • {it.location || "Sri Lanka"}{" "}
-                {it.workType ? `• ${it.workType}` : ""}
-              </p>
 
               <div
-                className="experience-summary mt-3 text-sm text-slate-700 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: it.summary }}
-              ></div>
+              className="experience-summary mt-3 text-sm text-slate-700 leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: it.summary }}
+            ></div>
             </div>
+
+            {/* Extend the timeline line except for last item */}
+            {idx !== items.length - 1 && (
+              <span className="absolute left-[4px] top-6 bottom-0 w-[2px] bg-slate-200"></span>
+            )}
           </div>
         ))}
       </div>
