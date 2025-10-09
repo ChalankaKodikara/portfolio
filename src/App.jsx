@@ -50,10 +50,8 @@ function App() {
         <FloatingShapes color="#1d77b3" count={10} />
       </div>
 
-      {/* ✨ Interactive Cursor */}
       <CustomCursor />
 
-      {/* ✨ Main Content */}
       <Header />
 
       {isAdmin ? (

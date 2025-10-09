@@ -22,25 +22,26 @@ const PROJECTS_DIR = path.join(DATA_DIR, "projects");
 const EXPERIENCE_DIR = path.join(DATA_DIR, "experience");
 const PHOTOS_DIR = path.join(DATA_DIR, "photos");
 const COMMENTS_DIR = path.join(DATA_DIR, "comments");
+const HERO_FILE = path.join(DATA_DIR, "hero.json");
 
 const UPLOAD_PROJECTS = path.join(__dirname, "uploads", "projects");
 const UPLOAD_EXPERIENCE = path.join(__dirname, "uploads", "experience");
 const UPLOAD_PHOTOS = path.join(__dirname, "uploads", "photos");
 const UPLOAD_COMMENTS = path.join(__dirname, "uploads", "comments");
+const UPLOAD_HERO = path.join(__dirname, "uploads", "hero");
 
 // create folders if not exists
-for (const dir of [DATA_DIR, COMMENTS_DIR, UPLOAD_COMMENTS]) {
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-}
-
 for (const dir of [
   DATA_DIR,
   PROJECTS_DIR,
   EXPERIENCE_DIR,
   PHOTOS_DIR,
+  COMMENTS_DIR,
   UPLOAD_PROJECTS,
   UPLOAD_EXPERIENCE,
   UPLOAD_PHOTOS,
+  UPLOAD_COMMENTS,
+  UPLOAD_HERO,
 ]) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
@@ -54,6 +55,7 @@ const storage = multer.diskStorage({
     if (req.originalUrl.includes("experience")) folder = UPLOAD_EXPERIENCE;
     else if (req.originalUrl.includes("photos")) folder = UPLOAD_PHOTOS;
     else if (req.originalUrl.includes("comments")) folder = UPLOAD_COMMENTS;
+    else if (req.originalUrl.includes("hero")) folder = UPLOAD_HERO;
 
     cb(null, folder);
   },
@@ -63,6 +65,62 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage });
+
+// ---------------------------------------------------------------------
+// 🦸 HERO SECTION ENDPOINTS
+// ---------------------------------------------------------------------
+
+// 📄 Get Hero data
+app.get("/api/hero", (req, res) => {
+  try {
+    if (!fs.existsSync(HERO_FILE)) {
+      const defaultHero = {
+        texts: [
+          "Hi, I'm Chalanka Kodikara",
+          "I'm a Software Engineer and Designer",
+        ],
+        description:
+          "I craft scalable, high-performance software systems with a passion for clean design, seamless user experience, and reliable architecture.",
+        images: [],
+      };
+      fs.writeFileSync(HERO_FILE, JSON.stringify(defaultHero, null, 2));
+      return res.json(defaultHero);
+    }
+    const data = JSON.parse(fs.readFileSync(HERO_FILE, "utf-8"));
+    res.json(data);
+  } catch (err) {
+    console.error("Error reading hero:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ✏️ Update hero texts/description/images
+app.post("/api/hero", (req, res) => {
+  try {
+    const data = req.body;
+    fs.writeFileSync(HERO_FILE, JSON.stringify(data, null, 2));
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error saving hero:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 🖼 Upload Hero image
+app.post("/api/hero/upload", upload.single("image"), (req, res) => {
+  try {
+    if (!req.file)
+      return res
+        .status(400)
+        .json({ success: false, message: "No image uploaded" });
+
+    const fileUrl = `/uploads/hero/${req.file.filename}`;
+    res.json({ success: true, url: fileUrl });
+  } catch (err) {
+    console.error("Error uploading hero image:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // ---------------------------------------------------------------------
 // 🧩 PROJECTS ENDPOINTS
@@ -103,18 +161,13 @@ app.get("/api/projects", (req, res) => {
   }
 });
 
-// 📄 Get Single Project by ID
 app.get("/api/projects/:id", (req, res) => {
   try {
-    console.log("🔍 Requested project ID:", req.params.id);
     const filePath = path.join(PROJECTS_DIR, `${req.params.id}.json`);
-    console.log("📁 Looking for file:", filePath);
-
-    if (!fs.existsSync(filePath)) {
-      console.warn("⚠️ File not found for ID:", req.params.id);
-      return res.status(404).json({ success: false, message: "Project not found" });
-    }
-
+    if (!fs.existsSync(filePath))
+      return res
+        .status(404)
+        .json({ success: false, message: "Project not found" });
     const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
     res.json(data);
   } catch (err) {
@@ -122,7 +175,6 @@ app.get("/api/projects/:id", (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
-
 
 app.delete("/api/projects/:id", (req, res) => {
   try {
@@ -206,7 +258,7 @@ app.delete("/api/experience/:id", (req, res) => {
 });
 
 // ---------------------------------------------------------------------
-// 🧩 PHOTOS (NEWSPAPER) ENDPOINTS
+// 🧩 PHOTOS ENDPOINTS
 // ---------------------------------------------------------------------
 app.post("/api/photos", upload.single("image"), (req, res) => {
   try {
@@ -268,8 +320,6 @@ app.delete("/api/photos/:id", (req, res) => {
 // ---------------------------------------------------------------------
 // 🧩 COMMENTS ENDPOINTS
 // ---------------------------------------------------------------------
-
-// ➕ Create Comment
 app.post("/api/comments", upload.single("image"), (req, res) => {
   try {
     const raw = req.body.data;
@@ -284,11 +334,6 @@ app.post("/api/comments", upload.single("image"), (req, res) => {
     const filePath = path.join(COMMENTS_DIR, `${id}.json`);
     fs.writeFileSync(filePath, JSON.stringify({ ...data, id }, null, 2));
 
-    console.log(
-      `🖼️ Saved comment image at: ${UPLOAD_COMMENTS}/${
-        req.file?.filename || "no image"
-      }`
-    );
     res.json({ success: true, id, image: data.localImage });
   } catch (err) {
     console.error("❌ Error saving comment:", err);
@@ -296,7 +341,6 @@ app.post("/api/comments", upload.single("image"), (req, res) => {
   }
 });
 
-// 📖 Get All Comments
 app.get("/api/comments", (req, res) => {
   try {
     const files = fs.readdirSync(COMMENTS_DIR);
@@ -310,7 +354,6 @@ app.get("/api/comments", (req, res) => {
   }
 });
 
-// 🗑️ Delete Comment
 app.delete("/api/comments/:id", (req, res) => {
   try {
     const jsonPath = path.join(COMMENTS_DIR, `${req.params.id}.json`);
