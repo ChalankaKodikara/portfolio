@@ -1,0 +1,77 @@
+import { useEffect, useState } from "react";
+import Header from "./components/Header.jsx";
+import Hero from "./components/Hero.jsx";
+import Projects from "./components/Projects.jsx";
+import Experience from "./components/Experience.jsx";
+import Contact from "./components/Contact.jsx";
+import Footer from "./components/Footer.jsx";
+import Admin from "./pages/Admin.jsx";
+import Login from "./pages/Login.jsx";
+import { isAuthed } from "./lib/auth.js";
+import ProjectDetail from "./pages/ProjectDetail.jsx";
+import AdminExperience from "./pages/AdminExperience.jsx";
+import AdminPhotos from "./pages/AdminPhotos.jsx";
+import AdminComments from "./pages/AdminComments.jsx";
+import AdminProjects from './pages/AdminProjects.jsx'
+
+function App() {
+  const [route, setRoute] = useState(window.location.pathname);
+  useEffect(() => {
+    const onPop = () => setRoute(window.location.pathname);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  const go = (path) => {
+    window.history.pushState({}, "", path);
+    setRoute(path);
+  };
+  const isAdmin = route === "/admin";
+  const projectMatch = route.startsWith("/project/")
+    ? route.split("/project/")[1]
+    : null;
+  const adminSub = route.startsWith("/admin/")
+    ? route.split("/admin/")[1]
+    : null;
+
+  return (
+    <div className="min-h-dvh bg-white text-slate-900 selection:bg-cyan-500/20">
+      <Header />
+      {isAdmin ? (
+        isAuthed() ? (
+          <Admin />
+        ) : (
+          <Login />
+        )
+      ) : adminSub ? (
+        isAuthed() ? (
+          adminSub === "projects" ? (
+            <AdminProjects />
+          ) : adminSub === "experience" ? (
+            <AdminExperience />
+          ) : adminSub === "photos" ? (
+            <AdminPhotos />
+          ) : adminSub === "comments" ? (
+            <AdminComments />
+          ) : (
+            <Admin />
+          )
+        ) : (
+          <Login />
+        )
+      ) : projectMatch ? (
+        <ProjectDetail id={projectMatch} />
+      ) : (
+        <>
+          <Hero />
+          <Projects />
+          <Experience />
+          <Contact />
+        </>
+      )}
+      <Footer />
+    </div>
+  );
+}
+
+export default App;

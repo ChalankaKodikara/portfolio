@@ -1,0 +1,15 @@
+{
+  "id": "1760035435731",
+  "title": "HRIS System with Attendance Integration",
+  "category": "software",
+  "link": "",
+  "technologies": [
+    "React",
+    "Express.js",
+    "MySQL",
+    "Python"
+  ],
+  "features": "<ol><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span>Engineered a Human Resource Information System (HRIS) integrating biometric attendance devices with a mobile backend.</li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span>Developed a robust web platform for HR operations, including payroll, leave, and employee management.</li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span>Implemented efficient synchronization between attendance logs and HR data using Express.js APIs.</li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span>Focused on real-time processing, scalability, and secure employee data management. </li></ol>",
+  "description": "",
+  "localImage": "/uploads/projects/1760035435743-12356.png"
+}
