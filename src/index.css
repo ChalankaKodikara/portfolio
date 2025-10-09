@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
 /* Base: light theme */
-html, body, #root { height: 100%; }
-body { background-color: #ffffff; color: #0f172a; }
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  background-color: #ffffff;
+  color: #0f172a;
+}
 
 /* Split portrait helper for hero */
 .split-portrait {
@@ -23,16 +30,25 @@ body { background-color: #ffffff; color: #0f172a; }
   width: 50%;
   left: 0;
   /* painterly effect over left half */
-  background: conic-gradient(from 210deg at 60% 40%, #06b6d4, #f59e0b, #ef4444, #a855f7, #06b6d4);
+  background: conic-gradient(
+    from 210deg at 60% 40%,
+    #06b6d4,
+    #f59e0b,
+    #ef4444,
+    #a855f7,
+    #06b6d4
+  );
   mix-blend-mode: multiply;
   opacity: 0.9;
 }
 .split-portrait::after {
   content: "";
   position: absolute;
-  top: 0; bottom: 0; left: 50%;
+  top: 0;
+  bottom: 0;
+  left: 50%;
   width: 2px;
-  background: rgba(0,0,0,0.06);
+  background: rgba(0, 0, 0, 0.06);
 }
 
 /* Cursor glow effect */
@@ -40,7 +56,11 @@ body { background-color: #ffffff; color: #0f172a; }
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(600px 600px at var(--mx,50%) var(--my,50%), rgba(59,130,246,0.12), transparent 60%);
+  background: radial-gradient(
+    600px 600px at var(--mx, 50%) var(--my, 50%),
+    rgba(59, 130, 246, 0.12),
+    transparent 60%
+  );
   z-index: 10;
 }
 
@@ -69,4 +89,35 @@ body { background-color: #ffffff; color: #0f172a; }
 
 .experience-summary p {
   margin-bottom: 0.5rem;
+}
+
+html,
+body {
+  cursor: none; /* Hide default cursor */
+}
+
+/* Cursor hover animation */
+.cursor-hover {
+  width: 60px !important;
+  height: 60px !important;
+  border-color: #06b6d4 !important;
+  background-color: rgba(6, 182, 212, 0.1);
+  transition: all 0.15s ease-out;
+}
+
+@keyframes floatMove {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateY(-30px) rotate(5deg) scale(1.1);
+  }
+  100% {
+    transform: translateY(0) rotate(-5deg) scale(1);
+  }
+}
+
+body {
+  background-color: #fff;
+  overflow-x: hidden;
 }

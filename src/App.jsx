@@ -15,8 +15,11 @@ import AdminComments from "./pages/AdminComments.jsx";
 import AdminProjects from "./pages/AdminProjects.jsx";
 import NewsPaper from "./components/NewsPaper.jsx";
 import Comments from "./components/Comments.jsx";
-import NewsDetail from "./pages/NewsDetail.jsx"; // ✅ NEW detail page import
-
+import NewsDetail from "./pages/NewsDetail.jsx";
+import CustomCursor from "./components/CustomCursor.jsx";
+import FloatingShapes from "./components/FloatingShapes.jsx";
+import MoleculeBackdrop from "./components/MoleculeBackdrop.jsx";
+import RibbonPattern from "./components/RibbonPattern.jsx";
 function App() {
   const [route, setRoute] = useState(window.location.pathname);
 
@@ -26,27 +29,31 @@ function App() {
     return () => window.removeEventListener("popstate", onPop);
   }, []);
 
-  const go = (path) => {
-    window.history.pushState({}, "", path);
-    setRoute(path);
-  };
-
   const isAdmin = route === "/admin";
-
   const projectMatch = route.startsWith("/project/")
     ? route.replace("/project/", "")
     : null;
-
   const newsMatch = route.startsWith("/news/")
     ? route.replace("/news/", "")
     : null;
-
   const adminSub = route.startsWith("/admin/")
     ? route.split("/admin/")[1]
     : null;
 
   return (
-    <div className="min-h-dvh bg-white text-slate-900 selection:bg-cyan-500/20">
+    <div className="relative min-h-dvh text-slate-900 selection:bg-cyan-500/20">
+      {/* ✨ Background Layer */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#f7faff] to-white overflow-hidden">
+        <RibbonPattern color="#1d77b3" opacity={0.1} position="top" />
+        <RibbonPattern color="#1d77b3" opacity={0.08} position="bottom" />
+        {/* <MoleculeBackdrop color="#1d77b3" /> */}
+        <FloatingShapes color="#1d77b3" count={10} />
+      </div>
+
+      {/* ✨ Interactive Cursor */}
+      <CustomCursor />
+
+      {/* ✨ Main Content */}
       <Header />
 
       {isAdmin ? (
