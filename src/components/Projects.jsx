@@ -29,11 +29,12 @@ export default function Projects() {
       <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300">
         {paginated.length > 0 ? (
           paginated.map((it) => (
-            <a
-              key={it.id}
-              href={`/project/${it.id}`}
-              className="group relative rounded-xl border border-slate-200 bg-white hover:shadow-lg transition overflow-hidden"
-            >
+        <a
+  key={it.id}
+  href={`/project/${it.id}`}
+  className="group relative rounded-xl border border-slate-200 bg-white hover:shadow-lg transition overflow-hidden"
+>
+
               {it.localImage ? (
                 <img
                   src={`http://localhost:4000${it.localImage}`}

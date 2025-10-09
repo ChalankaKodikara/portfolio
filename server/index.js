@@ -103,6 +103,27 @@ app.get("/api/projects", (req, res) => {
   }
 });
 
+// 📄 Get Single Project by ID
+app.get("/api/projects/:id", (req, res) => {
+  try {
+    console.log("🔍 Requested project ID:", req.params.id);
+    const filePath = path.join(PROJECTS_DIR, `${req.params.id}.json`);
+    console.log("📁 Looking for file:", filePath);
+
+    if (!fs.existsSync(filePath)) {
+      console.warn("⚠️ File not found for ID:", req.params.id);
+      return res.status(404).json({ success: false, message: "Project not found" });
+    }
+
+    const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    res.json(data);
+  } catch (err) {
+    console.error("Error reading project:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
 app.delete("/api/projects/:id", (req, res) => {
   try {
     const jsonPath = path.join(PROJECTS_DIR, `${req.params.id}.json`);

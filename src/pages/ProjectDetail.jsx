@@ -1,63 +1,117 @@
-import { useEffect, useMemo, useState } from 'react'
-import { readItems } from '../lib/storage.js'
+import { useEffect, useState } from "react";
+import { API_BASE } from "../lib/api.js";
 
 export default function ProjectDetail({ id }) {
-  const [items, setItems] = useState([])
-  useEffect(() => setItems(readItems()), [])
-  const item = useMemo(() => items.find(i => i.id === id), [items, id])
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!item) {
+  useEffect(() => {
+    if (!id) return;
+    fetch(`${API_BASE}/projects/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProject(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching project:", err);
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) {
     return (
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16">
-        <p className="text-slate-600">Project not found.</p>
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 text-center text-slate-500">
+        Loading project details...
       </div>
-    )
+    );
   }
 
+  if (!project) {
+    return (
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 text-center text-slate-600">
+        Project not found.
+      </div>
+    );
+  }
+
+  const {
+    title,
+    category,
+    description,
+    localImage,
+    link,
+    technologies,
+    features,
+  } = project;
+
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-12">
-      <div className="text-xs uppercase tracking-wide text-slate-500">{item.category}</div>
-      <h1 className="mt-1 text-3xl font-bold">{item.title}</h1>
-      {item.link ? <a className="text-slate-900 underline" href={item.link} target="_blank" rel="noreferrer">Visit</a> : null}
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16">
+      <div className="text-xs uppercase tracking-wide text-slate-500">
+        {category || "Project"}
+      </div>
 
-      {item.images?.length ? (
-        <>
-          {/* Hero main image */}
-          <div className="mt-6 overflow-hidden rounded-2xl ring-1 ring-black/5">
-            <img src={item.images[0]} alt="" className="w-full object-cover aspect-[21/9]" />
-          </div>
-          {/* Slider thumbnails */}
-          <div className="mt-4 flex gap-3 overflow-x-auto">
-            {item.images.slice(1).map((src, i) => (
-              <img key={i} src={src} alt="" className="h-28 w-auto rounded-md object-cover" />
-            ))}
-          </div>
-        </>
-      ) : null}
+      <h1 className="mt-2 text-3xl sm:text-4xl font-bold text-slate-900">
+        {title}
+      </h1>
 
-      <p className="mt-6 text-slate-700">{item.description}</p>
+      {link && (
+        <a
+          className="mt-2 inline-block text-sky-600 font-medium underline hover:text-sky-800 transition"
+          href={link}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Visit Project ↗
+        </a>
+      )}
 
-      {item.technologies?.length ? (
-        <div className="mt-6">
-          <h2 className="font-semibold">Technologies</h2>
-          <div className="mt-2 flex flex-wrap gap-2 text-sm">
-            {item.technologies.map((t, i) => (
-              <span key={i} className="rounded-full border border-slate-300 px-3 py-1">{t}</span>
+      {localImage && (
+        <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+          <img
+            src={`http://localhost:4000${localImage}`}
+            alt={title}
+            className="w-full object-cover aspect-[21/9]"
+          />
+        </div>
+      )}
+
+      <p className="mt-6 text-slate-700 leading-relaxed">{description}</p>
+
+      {technologies?.length > 0 && (
+        <div className="mt-8">
+          <h2 className="font-semibold text-slate-900 mb-2">
+            Technologies Used
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {technologies.map((t, i) => (
+              <span
+                key={i}
+                className="rounded-full border border-slate-300 bg-slate-50 px-3 py-1 text-sm text-slate-700"
+              >
+                {t}
+              </span>
             ))}
           </div>
         </div>
-      ) : null}
+      )}
 
-      {item.features?.length ? (
-        <div className="mt-6">
-          <h2 className="font-semibold">Features</h2>
-          <ul className="mt-2 list-disc pl-5 text-slate-700">
-            {item.features.map((f, i) => (<li key={i}>{f}</li>))}
+      {features && (
+        <div className="mt-8">
+          <h2 className="font-semibold text-slate-900 mb-2">Key Features</h2>
+
+          <ul className="list-disc pl-5 text-slate-700 space-y-1">
+            {(Array.isArray(features)
+              ? features
+              : typeof features === "string"
+              ? features.split(",").map((f) => f.trim())
+              : []
+            ).map((f, i) => (
+              <li key={i}>{f}</li>
+            ))}
           </ul>
         </div>
-      ) : null}
+      )}
     </div>
-  )
+  );
 }
-
-

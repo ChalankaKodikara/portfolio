@@ -12,10 +12,14 @@ import ProjectDetail from "./pages/ProjectDetail.jsx";
 import AdminExperience from "./pages/AdminExperience.jsx";
 import AdminPhotos from "./pages/AdminPhotos.jsx";
 import AdminComments from "./pages/AdminComments.jsx";
-import AdminProjects from './pages/AdminProjects.jsx'
+import AdminProjects from "./pages/AdminProjects.jsx";
+import NewsPaper from "./components/NewsPaper.jsx";
+import Comments from "./components/Comments.jsx";
+import NewsDetail from "./pages/NewsDetail.jsx"; // ✅ NEW detail page import
 
 function App() {
   const [route, setRoute] = useState(window.location.pathname);
+
   useEffect(() => {
     const onPop = () => setRoute(window.location.pathname);
     window.addEventListener("popstate", onPop);
@@ -26,10 +30,17 @@ function App() {
     window.history.pushState({}, "", path);
     setRoute(path);
   };
+
   const isAdmin = route === "/admin";
+
   const projectMatch = route.startsWith("/project/")
-    ? route.split("/project/")[1]
+    ? route.replace("/project/", "")
     : null;
+
+  const newsMatch = route.startsWith("/news/")
+    ? route.replace("/news/", "")
+    : null;
+
   const adminSub = route.startsWith("/admin/")
     ? route.split("/admin/")[1]
     : null;
@@ -37,6 +48,7 @@ function App() {
   return (
     <div className="min-h-dvh bg-white text-slate-900 selection:bg-cyan-500/20">
       <Header />
+
       {isAdmin ? (
         isAuthed() ? (
           <Admin />
@@ -61,14 +73,19 @@ function App() {
         )
       ) : projectMatch ? (
         <ProjectDetail id={projectMatch} />
+      ) : newsMatch ? (
+        <NewsDetail id={newsMatch} />
       ) : (
         <>
           <Hero />
           <Projects />
           <Experience />
+          <NewsPaper />
+          <Comments />
           <Contact />
         </>
       )}
+
       <Footer />
     </div>
   );
