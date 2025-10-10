@@ -11,7 +11,7 @@ export default function Hero() {
   const [typingPhase, setTypingPhase] = useState("typing");
   const [messageIndex, setMessageIndex] = useState(0);
 
-  const API_BASE = "http://localhost:4000/api";
+  const API_BASE = "https://back-chalanka.casknet.dev/api";
 
   // 🔹 Fetch hero data from backend
   useEffect(() => {
@@ -31,7 +31,9 @@ export default function Hero() {
   const images =
     heroData.images?.length > 0
       ? heroData.images.map((img) =>
-          img.startsWith("http") ? img : `http://localhost:4000${img}`
+          img.startsWith("http")
+            ? img
+            : `https://back-chalanka.casknet.dev${img}`
         )
       : [];
 

@@ -17,7 +17,7 @@ export default function AdminExperience() {
     logoFile: null,
   });
 
-  const API = "http://localhost:4000/api/experience";
+  const API = "https://back-chalanka.casknet.dev/api/experience";
 
   useEffect(() => {
     fetch(API)
@@ -236,7 +236,7 @@ export default function AdminExperience() {
             <div className="flex items-center gap-3">
               {it.companyLogo ? (
                 <img
-                  src={`http://localhost:4000${it.companyLogo}`}
+                  src={`https://back-chalanka.casknet.dev${it.companyLogo}`}
                   alt={it.title}
                   className="h-10 w-10 rounded-md object-cover ring-1 ring-slate-200"
                 />
@@ -268,5 +268,3 @@ export default function AdminExperience() {
     </div>
   );
 }
-
-

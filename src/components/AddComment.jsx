@@ -6,7 +6,7 @@ export default function AddComment() {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
-  const API = "http://localhost:4000/api/comments";
+  const API = "https://back-chalanka.casknet.dev/api/comments";
 
   const handleSubmit = async (e) => {
     e.preventDefault();

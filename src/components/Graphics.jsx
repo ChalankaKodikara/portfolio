@@ -69,7 +69,7 @@ export default function Graphics() {
           >
             {item.mainImage ? (
               <img
-                src={`http://localhost:4000${item.mainImage}`}
+                src={`https://back-chalanka.casknet.dev${item.mainImage}`}
                 alt={item.title}
                 onClick={() => navigate(`/graphic/${item.id}`)}
                 className="w-full h-full object-cover cursor-pointer"

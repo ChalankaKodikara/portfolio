@@ -13,7 +13,7 @@ export default function AdminPhotos() {
     description: "",
   });
 
-  const API = "http://localhost:4000/api/photos";
+  const API = "https://back-chalanka.casknet.dev/api/photos";
 
   // Fetch all existing newspaper posts
   useEffect(() => {
@@ -190,7 +190,7 @@ export default function AdminPhotos() {
 
             {it.localImage ? (
               <img
-                src={`http://localhost:4000${it.localImage}`}
+                src={`https://back-chalanka.casknet.dev${it.localImage}`}
                 alt={it.title}
                 className="mt-3 rounded-md object-cover aspect-video ring-1 ring-slate-200"
               />
@@ -228,7 +228,7 @@ export default function AdminPhotos() {
                   className="rounded-lg overflow-hidden shadow-sm border border-slate-200 hover:scale-[1.02] transition-transform duration-200"
                 >
                   <img
-                    src={`http://localhost:4000${it.localImage}`}
+                    src={`https://back-chalanka.casknet.dev${it.localImage}`}
                     alt={it.title}
                     className="w-full h-40 object-cover"
                   />
@@ -240,5 +240,3 @@ export default function AdminPhotos() {
     </div>
   );
 }
-
-
