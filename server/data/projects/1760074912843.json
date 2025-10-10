@@ -1,0 +1,17 @@
+{
+  "id": "1760074912843",
+  "title": "Crop Disease Diagnosis System Empowering Sri Lankan Farmers through Digital Technologies",
+  "category": "software",
+  "link": "",
+  "technologies": [
+    "React.js",
+    "Express.js",
+    "Python (Flask)",
+    "MySQL",
+    "TensorFlow",
+    "OpenCV"
+  ],
+  "features": "<ol><li >Automated leaf disease detection using trained CNN models</li><li >Accuracy of <strong>96.2% (training)</strong> and <strong>94.2% (validation)</strong> across 48 leaf classes</li><li >Disease prediction with corresponding treatment recommendations</li><li >Centralized dashboard for monitoring predictions and analytics</li><li >Flask-based machine learning backend integrated with a responsive React.js frontend</li><li >Optimized database and API for image storage, prediction logs, and analytics</li></ol>",
+  "description": "<p>Developed a <strong>machine learning powered crop disease diagnosis system</strong> to assist Sri Lankan farmers in early detection and treatment of plant diseases through image-based classification. The system analyzes uploaded leaf images, predicts the disease category using a <strong>Convolutional Neural Network (CNN)</strong>, and provides relevant remedies through an interactive web platform.</p><p>The project focused on enhancing agricultural productivity and sustainability by bridging the technological gap between farmers and digital tools, offering <strong>real time insights, automated disease identification, and statistical analytics</strong> for improved crop management.</p>",
+  "localImage": "/uploads/projects/1760074912877-Screenshot_2025-10-10_111144.png"
+}

@@ -2,8 +2,19 @@ import { useEffect, useState, useRef } from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 
+// 🟢 Quill config
+const bulletModules = {
+  toolbar: [
+    [{ list: "bullet" }, { list: "ordered" }],
+    ["bold", "italic"],
+    ["clean"],
+  ],
+};
+const bulletFormats = ["list", "bold", "italic"];
+
 export default function AdminProjects() {
   const [items, setItems] = useState([]);
+  const [editingId, setEditingId] = useState(null);
   const [lastImage, setLastImage] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -19,18 +30,30 @@ export default function AdminProjects() {
 
   const API = "http://localhost:4000/api/projects";
 
+  // 🔹 Fetch all projects
   useEffect(() => {
     fetch(API)
       .then((res) => res.json())
       .then((data) => setItems(data.reverse()))
-      .catch((err) => console.error("Error fetching:", err));
+      .catch((err) => console.error("Error fetching projects:", err));
   }, []);
 
+  // 🧹 Clean HTML before saving
+  const cleanHTML = (html = "") =>
+    html
+      .replace(/<span[^>]*class="ql-ui"[^>]*><\/span>/g, "")
+      .replace(/data-list="[^"]*"/g, "")
+      .replace(/contenteditable="[^"]*"/g, "")
+      .replace(/<p><br><\/p>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .trim();
+
+  // 🧠 Add or Update Project
   async function onSubmit(e) {
     e.preventDefault();
 
     const payload = {
-      id: Date.now().toString(),
+      id: editingId || Date.now().toString(),
       title: form.title,
       category: form.category,
       link: form.link,
@@ -38,51 +61,112 @@ export default function AdminProjects() {
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
-      features: form.features,
-      description: form.description,
+      features: cleanHTML(form.features),
+      description: cleanHTML(form.description),
     };
 
     const formData = new FormData();
     formData.append("data", JSON.stringify(payload));
     if (form.image) formData.append("image", form.image);
 
-    const res = await fetch(API, { method: "POST", body: formData });
+    const method = editingId ? "PUT" : "POST";
+    const url = editingId ? `${API}/${editingId}` : API;
+
+    const res = await fetch(url, { method, body: formData });
     const result = await res.json();
 
     if (result.success) {
-      setItems((prev) => [{ ...payload, localImage: result.image }, ...prev]);
+      if (editingId) {
+        setItems((prev) =>
+          prev.map((i) =>
+            i.id === editingId
+              ? { ...payload, localImage: result.image || i.localImage }
+              : i
+          )
+        );
+      } else {
+        setItems((prev) => [{ ...payload, localImage: result.image }, ...prev]);
+      }
+
       if (form.image) setLastImage(URL.createObjectURL(form.image));
-      setForm({
-        title: "",
-        category: "software",
-        link: "",
-        technologies: "",
-        features: "",
-        description: "",
-        image: null,
-      });
+      resetForm();
     }
   }
 
+  // 🧹 Reset Form
+  function resetForm() {
+    setForm({
+      title: "",
+      category: "software",
+      link: "",
+      technologies: "",
+      features: "",
+      description: "",
+      image: null,
+    });
+    setEditingId(null);
+    setLastImage(null);
+  }
+
+  // 🗑️ Delete Project
   async function onRemove(id) {
     await fetch(`${API}/${id}`, { method: "DELETE" });
     setItems((prev) => prev.filter((i) => i.id !== id));
   }
 
+  // ✏️ Edit Project — Fetch and Fill
+  async function onEdit(id) {
+    try {
+      const res = await fetch(`${API}/${id}`);
+      if (!res.ok) throw new Error("Project not found");
+      const data = await res.json();
+
+      const cleanFeatures = (data.features || "")
+        .replace(/<ol/g, "<ul")
+        .replace(/<\/ol/g, "</ul");
+
+      setForm({
+        title: data.title || "",
+        category: data.category || "software",
+        link: data.link || "",
+        technologies: Array.isArray(data.technologies)
+          ? data.technologies.join(", ")
+          : data.technologies || "",
+        features: cleanFeatures,
+        description: data.description || "",
+        image: null,
+      });
+
+      setLastImage(
+        data.localImage ? `http://localhost:4000${data.localImage}` : null
+      );
+
+      setEditingId(id);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      console.error("Error fetching project:", err);
+    }
+  }
+
+  // 🖱️ Drag & Drop Upload
   const handleDrop = (e) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file) setForm({ ...form, image: file });
   };
-
   const handleDragOver = (e) => e.preventDefault();
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 py-10">
-      <h1 className="text-2xl font-semibold mb-6">Projects Management</h1>
+      <h1 className="text-2xl font-semibold mb-6">
+        {editingId ? "Edit Project" : "Projects Management"}
+      </h1>
 
+      {/* ===== Add / Edit Project Form ===== */}
       <form onSubmit={onSubmit} className="grid gap-3 sm:grid-cols-2">
+        {/* 🧾 Title */}
         <input
+          key={editingId ? `${editingId}-title` : "new-title"}
           className="border border-slate-300 px-3 py-2 rounded-md"
           placeholder="Project Title"
           value={form.title}
@@ -90,6 +174,7 @@ export default function AdminProjects() {
           required
         />
 
+        {/* 🗂 Category */}
         <select
           className="border border-slate-300 px-3 py-2 rounded-md"
           value={form.category}
@@ -99,23 +184,26 @@ export default function AdminProjects() {
           <option value="graphics">Graphics</option>
         </select>
 
+        {/* 🔗 Link */}
         <input
+          key={editingId ? `${editingId}-link` : "new-link"}
           className="border border-slate-300 px-3 py-2 sm:col-span-2 rounded-md"
           placeholder="Project Link (optional)"
           value={form.link}
           onChange={(e) => setForm({ ...form, link: e.target.value })}
         />
 
+        {/* 🖼 Image Upload */}
         <div
           className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition cursor-pointer sm:col-span-2"
           onClick={() => fileInputRef.current?.click()}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
         >
-          {form.image ? (
+          {form.image || lastImage ? (
             <div className="flex flex-col items-center gap-2">
               <img
-                src={URL.createObjectURL(form.image)}
+                src={form.image ? URL.createObjectURL(form.image) : lastImage}
                 alt="Preview"
                 className="h-20 w-20 rounded-md object-cover ring-1 ring-slate-200"
               />
@@ -124,6 +212,7 @@ export default function AdminProjects() {
                 onClick={(e) => {
                   e.stopPropagation();
                   setForm({ ...form, image: null });
+                  setLastImage(null);
                 }}
                 className="text-sm text-red-600"
               >
@@ -147,52 +236,62 @@ export default function AdminProjects() {
           />
         </div>
 
-        {lastImage && !form.image && (
-          <button
-            type="button"
-            className="mt-2 text-xs text-blue-600 underline sm:col-span-2"
-            onClick={() => setForm({ ...form, image: lastImage })}
-          >
-            Reuse last uploaded image
-          </button>
-        )}
-
+        {/* 🧠 Technologies */}
         <input
+          key={editingId ? `${editingId}-tech` : "new-tech"}
           className="border border-slate-300 px-3 py-2 sm:col-span-2 rounded-md"
           placeholder="Technologies (comma separated)"
           value={form.technologies}
           onChange={(e) => setForm({ ...form, technologies: e.target.value })}
         />
 
+        {/* 🟢 Features */}
         <div className="sm:col-span-2">
           <label className="text-sm text-slate-600 mb-1 block">
-            Features (Rich Text)
+            Key Features
           </label>
           <ReactQuill
+            key={editingId ? `${editingId}-features` : "new-features"}
             theme="snow"
             value={form.features}
             onChange={(v) => setForm({ ...form, features: v })}
+            modules={bulletModules}
+            formats={bulletFormats}
+            placeholder="Add bullet points describing key features..."
           />
         </div>
 
+        {/* 🟡 Description */}
         <div className="sm:col-span-2">
           <label className="text-sm text-slate-600 mb-1 block">
             Description
           </label>
           <ReactQuill
+            key={editingId ? `${editingId}-description` : "new-description"}
             theme="snow"
             value={form.description}
             onChange={(v) => setForm({ ...form, description: v })}
           />
         </div>
 
-        <div className="sm:col-span-2">
+        {/* 🧩 Buttons */}
+        <div className="sm:col-span-2 flex gap-3">
           <button className="bg-slate-900 text-white rounded-md px-4 py-2">
-            Add Project
+            {editingId ? "Update Project" : "Add Project"}
           </button>
+          {editingId && (
+            <button
+              type="button"
+              className="border border-slate-300 px-4 py-2 rounded-md"
+              onClick={resetForm}
+            >
+              Cancel
+            </button>
+          )}
         </div>
       </form>
 
+      {/* ===== Project Cards ===== */}
       <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((it) => (
           <div
@@ -202,7 +301,7 @@ export default function AdminProjects() {
             <div className="text-xs uppercase text-slate-500">
               {it.category}
             </div>
-            <h3 className="mt-1 font-semibold">{it.title}</h3>
+            <h3 className="mt-1 font-semibold text-slate-900">{it.title}</h3>
 
             {it.localImage ? (
               <img
@@ -214,13 +313,26 @@ export default function AdminProjects() {
               <div className="h-32 bg-slate-100 rounded-md mt-2" />
             )}
 
+            {it.features && (
+              <div
+                className="mt-3 text-sm text-slate-700 leading-relaxed"
+                dangerouslySetInnerHTML={{
+                  __html: `
+                    <ul class="list-disc pl-5 space-y-1 marker:text-slate-500">
+                      ${cleanHTML(it.features)
+                        .replace(/^<ul>|<\/ul>$/g, "")
+                        .trim()}
+                    </ul>
+                  `,
+                }}
+              />
+            )}
+
             <div
-              className="mt-3 text-sm text-slate-700"
-              dangerouslySetInnerHTML={{ __html: it.features }}
-            />
-            <div
-              className="mt-2 text-xs text-slate-600"
-              dangerouslySetInnerHTML={{ __html: it.description }}
+              className="mt-2 text-xs text-slate-600 prose prose-slate"
+              dangerouslySetInnerHTML={{
+                __html: cleanHTML(it.description),
+              }}
             />
 
             <div className="mt-3 flex items-center gap-2">
@@ -235,6 +347,12 @@ export default function AdminProjects() {
                 </a>
               )}
               <button
+                onClick={() => onEdit(it.id)}
+                className="text-slate-700 text-sm"
+              >
+                Edit
+              </button>
+              <button
                 onClick={() => onRemove(it.id)}
                 className="ml-auto text-red-600 text-sm"
               >
@@ -247,5 +365,3 @@ export default function AdminProjects() {
     </div>
   );
 }
-
-

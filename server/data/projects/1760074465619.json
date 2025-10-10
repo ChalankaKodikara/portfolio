@@ -1,0 +1,30 @@
+{
+  "id": "1760074465619",
+  "title": "🛡 81Guards Security — Smart Surveillance & Guard Management System",
+  "category": "software",
+  "link": "",
+  "technologies": [
+    "React.js",
+    "Tailwind CSS",
+    "Flutter",
+    "Node.js",
+    "Express.js",
+    "MySQL",
+    "JWT Authentication",
+    "AES-256 Encryption",
+    "AWS S3",
+    "RESTful API Integration",
+    "Framer Motion",
+    "React Query",
+    "GetX",
+    "Dio",
+    "SharedPreferences",
+    "Git",
+    "Postman",
+    "Responsive UI Design",
+    "Full-Stack Development"
+  ],
+  "features": "<ol><li >Real-time guard tracking and checkpoint verification via QR/NFC</li><li >Incident logging with image and video evidence upload</li><li >Automated attendance and shift scheduling</li><li >Encrypted authentication and secure data handling</li><li >Cloud-based file storage with AWS S3 integration</li><li >Responsive admin dashboard with analytics and reports</li></ol>",
+  "description": "<p>81Guards Security is a robust <strong>web and mobile-based guard management and surveillance platform</strong> that enables organizations to <strong>monitor, track, and manage security personnel</strong> across multiple locations in real time.</p><p> The system integrates <strong>checkpoint scanning, incident logging, attendance tracking, and scheduling</strong> with <strong>secure authentication and cloud storage (AWS S3)</strong> built for high performance, reliability, and user experience.</p>",
+  "localImage": "/uploads/projects/1760074465639-1747025696138.jpg"
+}

@@ -121,3 +121,15 @@ body {
   background-color: #fff;
   overflow-x: hidden;
 }
+.prose ul li::marker {
+  content: "▹ ";
+  color: #1d77b3;
+  font-weight: 600;
+}
+ul.list-disc {
+  list-style-type: disc !important;
+}
+ul.list-disc li::marker {
+  font-size: 0.9em;
+  color: #475569; /* slate-600 */
+}

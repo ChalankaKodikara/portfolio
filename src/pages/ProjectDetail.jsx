@@ -19,21 +19,19 @@ export default function ProjectDetail({ id }) {
       });
   }, [id]);
 
-  if (loading) {
+  if (loading)
     return (
       <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 text-center text-slate-500">
         Loading project details...
       </div>
     );
-  }
 
-  if (!project) {
+  if (!project)
     return (
       <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 text-center text-slate-600">
         Project not found.
       </div>
     );
-  }
 
   const {
     title,
@@ -45,8 +43,35 @@ export default function ProjectDetail({ id }) {
     features,
   } = project;
 
+  // 🧹 Clean up Quill HTML noise
+  const cleanHTML = (html = "") =>
+    html
+      .replace(/<span[^>]*class="ql-ui"[^>]*><\/span>/g, "")
+      .replace(/data-list="[^"]*"/g, "")
+      .replace(/contenteditable="[^"]*"/g, "")
+      .replace(/<p><br><\/p>/g, "")
+      .trim();
+
+  // 🪄 Format features — supports both HTML + plain text
+  const formatFeatures = (featuresText = "") => {
+    const clean = cleanHTML(featuresText);
+
+    // Case 1: Quill already created <ul> or <ol> lists
+    if (clean.includes("<ul") || clean.includes("<ol")) return clean;
+
+    // Case 2: Fallback to plain text -> make <ul><li>...</li></ul>
+    const items = clean
+      .split(/[\n•\-–,]+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (items.length === 0) return "";
+    return `<ul>${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
+  };
+
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16">
+      {/* Header */}
       <div className="text-xs uppercase tracking-wide text-slate-500">
         {category || "Project"}
       </div>
@@ -66,6 +91,7 @@ export default function ProjectDetail({ id }) {
         </a>
       )}
 
+      {/* Image */}
       {localImage && (
         <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
           <img
@@ -76,10 +102,17 @@ export default function ProjectDetail({ id }) {
         </div>
       )}
 
-      <p className="mt-6 text-slate-700 leading-relaxed">{description}</p>
+      {/* Description */}
+      {description && (
+        <div
+          className="prose prose-slate mt-8 max-w-none prose-p:text-slate-700 prose-strong:text-slate-900"
+          dangerouslySetInnerHTML={{ __html: cleanHTML(description) }}
+        />
+      )}
 
+      {/* Technologies */}
       {technologies?.length > 0 && (
-        <div className="mt-8">
+        <div className="mt-10">
           <h2 className="font-semibold text-slate-900 mb-2">
             Technologies Used
           </h2>
@@ -96,20 +129,22 @@ export default function ProjectDetail({ id }) {
         </div>
       )}
 
+      {/* Features */}
       {features && (
-        <div className="mt-8">
+        <div className="mt-10">
           <h2 className="font-semibold text-slate-900 mb-2">Key Features</h2>
-
-          <ul className="list-disc pl-5 text-slate-700 space-y-1">
-            {(Array.isArray(features)
-              ? features
-              : typeof features === "string"
-              ? features.split(",").map((f) => f.trim())
-              : []
-            ).map((f, i) => (
-              <li key={i}>{f}</li>
-            ))}
-          </ul>
+          <div
+            className="max-w-none text-slate-700 leading-relaxed"
+            dangerouslySetInnerHTML={{
+              __html: `
+        <ul class="list-disc pl-6 space-y-1 marker:text-slate-500">
+          ${formatFeatures(features)
+            .replace(/^<ul>|<\/ul>$/g, "") // remove wrapping <ul> if any
+            .trim()}
+        </ul>
+      `,
+            }}
+          />
         </div>
       )}
     </div>

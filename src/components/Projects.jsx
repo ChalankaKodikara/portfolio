@@ -21,20 +21,19 @@ export default function Projects() {
     <section id="projects" className="mx-auto max-w-6xl px-4 sm:px-6 py-16">
       <h2 className="text-2xl sm:text-3xl font-semibold">Featured Projects</h2>
       <p className="mt-3 text-slate-600 max-w-2xl">
-        A curated collection of recent software and creative projects 
-        showcasing my work in full-stack development, design, and engineering.
+        A curated collection of recent software and creative projects showcasing
+        my work in full-stack development, design, and engineering.
       </p>
 
       {/* Project cards */}
       <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300">
         {paginated.length > 0 ? (
           paginated.map((it) => (
-        <a
-  key={it.id}
-  href={`/project/${it.id}`}
-  className="group relative rounded-xl border border-slate-200 bg-white hover:shadow-lg transition overflow-hidden"
->
-
+            <a
+              key={it.id}
+              href={`/project/${it.id}`}
+              className="group relative rounded-xl border border-slate-200 bg-white hover:shadow-lg transition overflow-hidden"
+            >
               {it.localImage ? (
                 <img
                   src={`http://localhost:4000${it.localImage}`}

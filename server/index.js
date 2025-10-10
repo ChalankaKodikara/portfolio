@@ -374,6 +374,55 @@ app.delete("/api/comments/:id", (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+// ✏️ Update existing project (with or without new image)
+app.put("/api/projects/:id", upload.single("image"), (req, res) => {
+  try {
+    const id = req.params.id;
+    const jsonPath = path.join(PROJECTS_DIR, `${id}.json`);
+
+    // Ensure project exists
+    if (!fs.existsSync(jsonPath)) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Project not found" });
+    }
+
+    // Parse existing data
+    const existingData = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+
+    // Parse new incoming data
+    const raw = req.body.data;
+    if (!raw)
+      return res.status(400).json({ success: false, message: "Missing data" });
+
+    const updatedData = JSON.parse(raw);
+
+    // If new image uploaded, replace old one
+    if (req.file) {
+      // Delete old image if exists
+      if (existingData.localImage) {
+        const oldImagePath = path.join(
+          __dirname,
+          existingData.localImage.replace(/^\/+/, "")
+        );
+        if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
+      }
+      updatedData.localImage = `/uploads/projects/${req.file.filename}`;
+    } else {
+      // Keep the previous image if not changed
+      updatedData.localImage = existingData.localImage;
+    }
+
+    // Merge and save updated project
+    const mergedData = { ...existingData, ...updatedData, id };
+    fs.writeFileSync(jsonPath, JSON.stringify(mergedData, null, 2));
+
+    res.json({ success: true, id, data: mergedData });
+  } catch (err) {
+    console.error("Error updating project:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // ---------------------------------------------------------------------
 // 🚀 Start Server

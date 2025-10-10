@@ -1,0 +1,22 @@
+{
+  "id": "1760072589667",
+  "title": "🩺 Wellbeing360 — Unified Digital Healthcare Platform",
+  "category": "software",
+  "link": "",
+  "technologies": [
+    "React.js",
+    "Tailwind CSS",
+    "Flutter",
+    "Node.js",
+    "Express.js",
+    "MySQL",
+    "JWT Authentication",
+    "OAuth2",
+    "GitHub",
+    "Postman",
+    "VS Code"
+  ],
+  "features": "<ol><li >Intelligent doctor search and appointment scheduling</li><li >Prescription tracking and in-app medicine ordering</li><li >Dual pharmacy integration (corporate and hospital)</li><li >Real-time order updates and push notifications</li><li >Inventory and stock management for pharmacists</li><li >Admin dashboard with analytics and performance metrics</li></ol>",
+  "description": "<p>Wellbeing360 is a comprehensive full-stack <strong>web and mobile platform</strong> designed to digitalize and streamline internal healthcare services within organizations. The system allows employees to <strong>book doctor appointments, manage prescriptions, order medicines, and access personalized health updates</strong> — all from a unified platform.</p><p> Meanwhile, <strong>admins, doctors, pharmacists, and HR teams</strong> can efficiently manage healthcare operations through a secure, role-based web dashboard.</p>",
+  "localImage": "/uploads/projects/1760072589690-Blue_Modern_Mobile_Application_Presentation.jpg"
+}
