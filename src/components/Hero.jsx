@@ -27,11 +27,15 @@ export default function Hero() {
         "Hi, I'm Chalanka Kodikara",
         "I'm a Software Engineer and Graphic Designer",
       ];
-const images = heroData.images?.length
-  ? heroData.images.map((img) => `http://localhost:4000${img}`)
-  : [];
 
-  // 🧠 Typewriter logic
+  const images =
+    heroData.images?.length > 0
+      ? heroData.images.map((img) =>
+          img.startsWith("http") ? img : `http://localhost:4000${img}`
+        )
+      : [];
+
+  // 🧠 Typewriter Effect
   useEffect(() => {
     if (!messages.length) return;
     let timeout;
@@ -64,15 +68,19 @@ const images = heroData.images?.length
     return () => clearTimeout(timeout);
   }, [displayText, typingPhase, messageIndex, messages]);
 
-  // 🔁 Image auto-slide
+  // 🔁 Auto-slide through all images
   useEffect(() => {
     if (!images.length) return;
-    const timer = setInterval(
-      () => setIndex((prev) => (prev + 1) % images.length),
-      5000
-    );
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % images.length);
+    }, 5000);
     return () => clearInterval(timer);
   }, [images.length]);
+
+  // 🧭 Manual navigation
+  const handleIndicatorClick = (i) => {
+    setIndex(i);
+  };
 
   return (
     <section
@@ -86,7 +94,7 @@ const images = heroData.images?.length
         </p>
 
         {/* 🔹 Dynamic Typewriter */}
-        <h1 className="text-5xl sm:text-6xl font-semibold tracking-tight leading-tight font-[system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,sans-serif]">
+        <h1 className="text-5xl sm:text-6xl font-semibold tracking-tight leading-tight">
           <span className="border-r-2 border-slate-800 pr-1 animate-pulse">
             {displayText}
           </span>
@@ -117,7 +125,7 @@ const images = heroData.images?.length
 
       {/* ==== Right Image Slider ==== */}
       <div className="relative mt-12 lg:mt-0">
-        {/* Blurred accent blobs */}
+        {/* Accent blobs */}
         <div className="absolute -top-10 -left-10 w-72 h-72 bg-cyan-400/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-0 w-64 h-64 bg-fuchsia-300/30 rounded-full blur-3xl"></div>
 
@@ -129,7 +137,7 @@ const images = heroData.images?.length
                 key={i}
                 src={img}
                 alt={`Slide ${i + 1}`}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
                   index === i ? "opacity-100" : "opacity-0"
                 }`}
               />
@@ -140,7 +148,7 @@ const images = heroData.images?.length
             </div>
           )}
 
-          {/* floating accents */}
+          {/* Floating accents */}
           <div className="absolute -top-3 -right-3 w-10 h-10 border-4 border-yellow-400 rounded-full"></div>
           <div className="absolute bottom-8 -left-4 w-10 h-10 border-4 border-rose-400 rounded-full rotate-45"></div>
         </div>
@@ -151,11 +159,11 @@ const images = heroData.images?.length
             {images.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setIndex(i)}
+                onClick={() => handleIndicatorClick(i)}
                 className={`transition-all duration-300 ${
                   index === i
                     ? "w-8 h-3 rounded-full bg-slate-900"
-                    : "w-3 h-3 rounded-full bg-slate-400/50"
+                    : "w-3 h-3 rounded-full bg-slate-400/50 hover:bg-slate-600/70"
                 }`}
               />
             ))}

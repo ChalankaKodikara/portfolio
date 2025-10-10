@@ -23,12 +23,14 @@ const EXPERIENCE_DIR = path.join(DATA_DIR, "experience");
 const PHOTOS_DIR = path.join(DATA_DIR, "photos");
 const COMMENTS_DIR = path.join(DATA_DIR, "comments");
 const HERO_FILE = path.join(DATA_DIR, "hero.json");
+const GRAPHICS_DIR = path.join(DATA_DIR, "graphics"); // ✅ added
 
 const UPLOAD_PROJECTS = path.join(__dirname, "uploads", "projects");
 const UPLOAD_EXPERIENCE = path.join(__dirname, "uploads", "experience");
 const UPLOAD_PHOTOS = path.join(__dirname, "uploads", "photos");
 const UPLOAD_COMMENTS = path.join(__dirname, "uploads", "comments");
 const UPLOAD_HERO = path.join(__dirname, "uploads", "hero");
+const UPLOAD_GRAPHICS = path.join(__dirname, "uploads", "graphics"); // ✅ added
 
 // create folders if not exists
 for (const dir of [
@@ -42,6 +44,8 @@ for (const dir of [
   UPLOAD_PHOTOS,
   UPLOAD_COMMENTS,
   UPLOAD_HERO,
+  GRAPHICS_DIR,
+  UPLOAD_GRAPHICS,
 ]) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
@@ -56,6 +60,7 @@ const storage = multer.diskStorage({
     else if (req.originalUrl.includes("photos")) folder = UPLOAD_PHOTOS;
     else if (req.originalUrl.includes("comments")) folder = UPLOAD_COMMENTS;
     else if (req.originalUrl.includes("hero")) folder = UPLOAD_HERO;
+    else if (req.originalUrl.includes("graphics")) folder = UPLOAD_GRAPHICS; // ✅ added
 
     cb(null, folder);
   },
@@ -67,7 +72,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // ---------------------------------------------------------------------
-// 🦸 HERO SECTION ENDPOINTS
+// 🦸 HERO SECTION ENDPOINTS (Updated for multiple uploads)
 // ---------------------------------------------------------------------
 
 // 📄 Get Hero data
@@ -94,26 +99,26 @@ app.get("/api/hero", (req, res) => {
   }
 });
 
-// ✏️ Update hero texts/description/images
+// ✏️ Save hero (texts, description, images)
 app.post("/api/hero", (req, res) => {
   try {
     const data = req.body;
     fs.writeFileSync(HERO_FILE, JSON.stringify(data, null, 2));
-    res.json({ success: true });
+    res.json({ success: true, message: "Hero data saved successfully" });
   } catch (err) {
     console.error("Error saving hero:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// 🖼 Upload Hero image
+// 🖼 Upload single Hero image
 app.post("/api/hero/upload", upload.single("image"), (req, res) => {
   try {
-    if (!req.file)
+    if (!req.file) {
       return res
         .status(400)
         .json({ success: false, message: "No image uploaded" });
-
+    }
     const fileUrl = `/uploads/hero/${req.file.filename}`;
     res.json({ success: true, url: fileUrl });
   } catch (err) {
@@ -122,6 +127,73 @@ app.post("/api/hero/upload", upload.single("image"), (req, res) => {
   }
 });
 
+// 🖼 Upload multiple Hero images (for slider)
+app.post(
+  "/api/hero/upload-multiple",
+  upload.array("images", 10),
+  (req, res) => {
+    try {
+      if (!req.files || !req.files.length) {
+        return res
+          .status(400)
+          .json({ success: false, message: "No images uploaded" });
+      }
+
+      // Generate URLs
+      const urls = req.files.map((f) => `/uploads/hero/${f.filename}`);
+
+      // 🔄 Merge new images with existing ones in hero.json
+      let existingHero = { texts: [], description: "", images: [] };
+      if (fs.existsSync(HERO_FILE)) {
+        existingHero = JSON.parse(fs.readFileSync(HERO_FILE, "utf-8"));
+      }
+
+      const updatedHero = {
+        ...existingHero,
+        images: [...(existingHero.images || []), ...urls],
+      };
+
+      fs.writeFileSync(HERO_FILE, JSON.stringify(updatedHero, null, 2));
+
+      res.json({
+        success: true,
+        message: "Multiple images uploaded successfully",
+        urls,
+      });
+    } catch (err) {
+      console.error("Error uploading multiple hero images:", err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+);
+
+// 🗑️ Delete a specific hero image by filename
+app.delete("/api/hero/image/:filename", (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const imagePath = path.join(UPLOAD_HERO, filename);
+    if (!fs.existsSync(imagePath))
+      return res
+        .status(404)
+        .json({ success: false, message: "Image not found" });
+
+    fs.unlinkSync(imagePath);
+
+    // Remove image from hero.json
+    if (fs.existsSync(HERO_FILE)) {
+      const data = JSON.parse(fs.readFileSync(HERO_FILE, "utf-8"));
+      data.images = (data.images || []).filter(
+        (img) => !img.endsWith(filename)
+      );
+      fs.writeFileSync(HERO_FILE, JSON.stringify(data, null, 2));
+    }
+
+    res.json({ success: true, message: "Hero image deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting hero image:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 // ---------------------------------------------------------------------
 // 🧩 PROJECTS ENDPOINTS
 // ---------------------------------------------------------------------
@@ -420,6 +492,168 @@ app.put("/api/projects/:id", upload.single("image"), (req, res) => {
     res.json({ success: true, id, data: mergedData });
   } catch (err) {
     console.error("Error updating project:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ➕ Add new graphic project with multiple images
+app.post(
+  "/api/graphics",
+  upload.fields([
+    { name: "mainImage", maxCount: 1 },
+    { name: "gallery", maxCount: 10 },
+  ]),
+  (req, res) => {
+    try {
+      const raw = req.body.data;
+      if (!raw)
+        return res
+          .status(400)
+          .json({ success: false, message: "Missing data" });
+
+      const data = JSON.parse(raw);
+      const id = data.id || Date.now().toString();
+
+      // Handle main image
+      if (req.files["mainImage"] && req.files["mainImage"][0]) {
+        data.mainImage = `/uploads/graphics/${req.files["mainImage"][0].filename}`;
+      }
+
+      // Handle gallery images
+      if (req.files["gallery"] && req.files["gallery"].length > 0) {
+        data.gallery = req.files["gallery"].map(
+          (f) => `/uploads/graphics/${f.filename}`
+        );
+      } else {
+        data.gallery = [];
+      }
+
+      fs.writeFileSync(
+        path.join(GRAPHICS_DIR, `${id}.json`),
+        JSON.stringify({ ...data, id }, null, 2)
+      );
+
+      res.json({
+        success: true,
+        id,
+        mainImage: data.mainImage,
+        gallery: data.gallery,
+      });
+    } catch (err) {
+      console.error("Error saving graphics project:", err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+);
+
+// 📖 Get all graphics projects
+app.get("/api/graphics", (req, res) => {
+  try {
+    const files = fs.readdirSync(GRAPHICS_DIR);
+    const data = files.map((f) =>
+      JSON.parse(fs.readFileSync(path.join(GRAPHICS_DIR, f), "utf-8"))
+    );
+    res.json(data);
+  } catch (err) {
+    console.error("Error reading graphics projects:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 📄 Get single graphic project by ID
+app.get("/api/graphics/:id", (req, res) => {
+  try {
+    const filePath = path.join(GRAPHICS_DIR, `${req.params.id}.json`);
+    if (!fs.existsSync(filePath))
+      return res.status(404).json({ success: false, message: "Not found" });
+
+    const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    res.json(data);
+  } catch (err) {
+    console.error("Error reading graphics project:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ✏️ Update graphic project
+app.put(
+  "/api/graphics/:id",
+  upload.fields([
+    { name: "mainImage", maxCount: 1 },
+    { name: "gallery", maxCount: 10 },
+  ]),
+  (req, res) => {
+    try {
+      const id = req.params.id;
+      const jsonPath = path.join(GRAPHICS_DIR, `${id}.json`);
+      if (!fs.existsSync(jsonPath))
+        return res.status(404).json({ success: false, message: "Not found" });
+
+      const existingData = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+      const raw = req.body.data;
+      const updatedData = raw ? JSON.parse(raw) : {};
+
+      // Replace or keep main image
+      if (req.files["mainImage"] && req.files["mainImage"][0]) {
+        if (existingData.mainImage) {
+          const oldPath = path.join(
+            __dirname,
+            existingData.mainImage.replace(/^\/+/, "")
+          );
+          if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        }
+        updatedData.mainImage = `/uploads/graphics/${req.files["mainImage"][0].filename}`;
+      } else {
+        updatedData.mainImage = existingData.mainImage;
+      }
+
+      // Replace or append gallery images
+      if (req.files["gallery"] && req.files["gallery"].length > 0) {
+        updatedData.gallery = [
+          ...(existingData.gallery || []),
+          ...req.files["gallery"].map((f) => `/uploads/graphics/${f.filename}`),
+        ];
+      } else {
+        updatedData.gallery = existingData.gallery || [];
+      }
+
+      const merged = { ...existingData, ...updatedData, id };
+      fs.writeFileSync(jsonPath, JSON.stringify(merged, null, 2));
+      res.json({ success: true, id, data: merged });
+    } catch (err) {
+      console.error("Error updating graphics project:", err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+);
+
+// 🗑️ Delete graphic project
+app.delete("/api/graphics/:id", (req, res) => {
+  try {
+    const jsonPath = path.join(GRAPHICS_DIR, `${req.params.id}.json`);
+    if (!fs.existsSync(jsonPath))
+      return res.status(404).json({ success: false, message: "Not found" });
+
+    const data = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+
+    // Delete main image
+    if (data.mainImage) {
+      const imgPath = path.join(__dirname, data.mainImage.replace(/^\/+/, ""));
+      if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+    }
+
+    // Delete gallery images
+    if (Array.isArray(data.gallery)) {
+      for (const img of data.gallery) {
+        const imgPath = path.join(__dirname, img.replace(/^\/+/, ""));
+        if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+      }
+    }
+
+    fs.unlinkSync(jsonPath);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error deleting graphics project:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 });

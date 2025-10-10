@@ -10,21 +10,18 @@ export default function Admin() {
     images: [],
   });
 
-  // Fetch items (optional local storage for quick overview)
+  // 🧠 Load initial data
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("portfolio_items") || "[]");
     setItems(stored);
-  }, []);
 
-  // 🧠 Load Hero data from backend
-  useEffect(() => {
     fetch(`${API_BASE}/hero`)
       .then((res) => res.json())
       .then((data) => setHero(data))
       .catch((err) => console.error("Error loading hero:", err));
   }, []);
 
-  // 💾 Save hero data (text, description, images)
+  // 💾 Save hero data
   const saveHero = async (data) => {
     setHero(data);
     try {
@@ -38,35 +35,62 @@ export default function Admin() {
     }
   };
 
-  // 🧩 Update text fields
+  // 🧩 Update texts & description
   const updateText = (index, value) => {
-    const nextTexts = [...(hero.texts || [])];
-    nextTexts[index] = value;
-    saveHero({ ...hero, texts: nextTexts });
+    const next = [...(hero.texts || [])];
+    next[index] = value;
+    saveHero({ ...hero, texts: next });
   };
 
-  // 🧩 Update description
   const updateDescription = (value) => {
     saveHero({ ...hero, description: value });
   };
 
-  // 📸 Handle image uploads
-  const updateImage = async (index, file) => {
-    if (!file) return;
+  // 📸 Upload multiple hero images (with live preview)
+  const uploadMultipleImages = async (files) => {
+    if (!files || !files.length) return;
+
+    // Temporary previews before upload
+    const previews = Array.from(files).map((f) => URL.createObjectURL(f));
+    const tempPreviews = [...(hero.images || []), ...previews];
+    setHero((prev) => ({ ...prev, images: tempPreviews }));
+
+    // Upload to backend
     const formData = new FormData();
-    formData.append("image", file);
+    for (const file of files) formData.append("images", file);
+
     try {
-      const res = await fetch(`${API_BASE}/hero/upload`, {
+      const res = await fetch(`${API_BASE}/hero/upload-multiple`, {
         method: "POST",
         body: formData,
       });
       const data = await res.json();
-      const nextImages = [...(hero.images || [])];
-      nextImages[index] = data.url;
-      saveHero({ ...hero, images: nextImages });
+      if (data.success && Array.isArray(data.urls)) {
+        // Replace temporary previews with actual server URLs
+        const finalUrls = [
+          ...(hero.images || []).filter((img) => img.startsWith("/uploads")),
+          ...data.urls,
+        ];
+        saveHero({ ...hero, images: finalUrls });
+      }
     } catch (err) {
       console.error("Image upload failed:", err);
     }
+  };
+
+  // 🗑 Remove image (client + server)
+  const removeImage = async (index) => {
+    const imageUrl = hero.images[index];
+    const filename = imageUrl.split("/").pop();
+
+    try {
+      await fetch(`${API_BASE}/hero/image/${filename}`, { method: "DELETE" });
+    } catch (err) {
+      console.error("Error deleting image:", err);
+    }
+
+    const next = hero.images.filter((_, i) => i !== index);
+    saveHero({ ...hero, images: next });
   };
 
   return (
@@ -108,11 +132,11 @@ export default function Admin() {
         ))}
       </div>
 
-      {/* 🦸 Hero Section Settings */}
+      {/* 🦸 Hero Section */}
       <div className="mt-10 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="font-semibold text-lg mb-4">Hero Section Settings</h2>
 
-        {/* Text Fields */}
+        {/* Typewriter Texts */}
         <div className="grid gap-3 mb-6">
           <label className="text-sm text-slate-600">Typewriter Texts</label>
           <input
@@ -125,13 +149,13 @@ export default function Admin() {
           <input
             type="text"
             className="rounded-md border border-slate-300 px-3 py-2"
-            placeholder="Second text (e.g. I'm a Software Engineer and Graphic Designer)"
+            placeholder="Second text (e.g. I'm a Software Engineer and Designer)"
             value={hero.texts?.[1] || ""}
             onChange={(e) => updateText(1, e.target.value)}
           />
         </div>
 
-        {/* 🆕 Hero Description Field */}
+        {/* Description */}
         <div className="mb-6">
           <label className="text-sm text-slate-600 mb-1">
             Hero Description
@@ -145,36 +169,49 @@ export default function Admin() {
           />
         </div>
 
-        {/* Image Uploads */}
+        {/* Multiple Image Uploads */}
         <label className="text-sm text-slate-600 mb-2 block">
-          Hero Images (3 for the slider)
+          Hero Slider Images (Preview & Manage)
         </label>
+
+        {/* Image grid */}
         <div className="grid sm:grid-cols-3 gap-4 mb-4">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="border border-slate-200 rounded-lg p-3 bg-slate-50 text-center"
-            >
-              {hero.images?.[i] ? (
+          {hero.images?.length > 0 ? (
+            hero.images.map((img, i) => (
+              <div
+                key={i}
+                className="relative border border-slate-200 rounded-lg p-3 bg-slate-50 text-center"
+              >
                 <img
-                  src={`http://localhost:4000${hero.images[i]}`}
+                  src={
+                    img.startsWith("/uploads")
+                      ? `http://localhost:4000${img}`
+                      : img
+                  }
                   alt={`Hero ${i + 1}`}
-                  className="rounded-md w-full aspect-[4/5] object-cover mb-2"
+                  className="rounded-md w-full aspect-[4/5] object-cover"
                 />
-              ) : (
-                <div className="aspect-[4/5] rounded-md bg-slate-200 flex items-center justify-center text-slate-500 text-sm mb-2">
-                  No Image
-                </div>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => updateImage(i, e.target.files?.[0])}
-                className="text-xs"
-              />
-            </div>
-          ))}
+                <button
+                  onClick={() => removeImage(i)}
+                  className="absolute top-2 right-2 bg-red-600 text-white text-xs rounded-md px-2 py-1 hover:bg-red-700"
+                >
+                  ✕
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="text-slate-500 text-sm">No images uploaded yet</div>
+          )}
         </div>
+
+        {/* Upload input */}
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={(e) => uploadMultipleImages(e.target.files)}
+          className="text-sm mb-4"
+        />
 
         <button
           onClick={() => saveHero(hero)}

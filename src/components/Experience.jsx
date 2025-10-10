@@ -19,19 +19,28 @@ export default function Experience() {
 
   return (
     <section id="experience" className="mx-auto max-w-5xl px-4 sm:px-6 py-16">
-      <h2 className="text-3xl font-bold mb-10">Professional Experience</h2>
+      <h2 className="text-3xl font-bold mb-10 text-center sm:text-left">
+        Professional Experience
+      </h2>
 
-      <div className="relative border-l-2 border-slate-200 ml-6">
+      <div className="relative border-l-2 border-slate-200 ml-6 sm:ml-6 sm:border-l-2 border-none sm:border-solid">
         {items.map((it, idx) => (
-          <div key={it.id} className="relative pl-10 pb-12">
-            {/* Timeline circle */}
-            <span className="absolute -left-[7px] top-1.5 w-3.5 h-3.5 rounded-full bg-blue-500 border-2 border-white shadow-sm"></span>
+          <div
+            key={it.id}
+            className="relative sm:pl-10 pb-12 flex flex-col items-center sm:block"
+          >
+            {/* Timeline dot (desktop) */}
+            <span className="hidden sm:block absolute -left-[7px] top-1.5 w-3.5 h-3.5 rounded-full bg-blue-500 border-2 border-white shadow-sm"></span>
 
-            {/* Experience Card */}
-            <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition">
-              <div className="flex items-center gap-4">
+            {/* Card */}
+            <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition relative w-full sm:w-auto">
+              {/* Timeline dot (mobile center) */}
+              <div className="sm:hidden absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-blue-500 border-2 border-white rounded-full shadow-sm"></div>
+
+              {/* Logo + Title */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                 {it.companyLogo && (
-                  <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-slate-50 ring-1 ring-slate-200">
+                  <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-slate-50 ring-1 ring-slate-200 mx-auto sm:mx-0">
                     <img
                       src={`http://localhost:4000${it.companyLogo}`}
                       alt={it.company}
@@ -39,7 +48,8 @@ export default function Experience() {
                     />
                   </div>
                 )}
-                <div>
+
+                <div className="text-center sm:text-left">
                   <h3 className="text-lg font-semibold text-slate-900">
                     {it.title}
                   </h3>
@@ -55,15 +65,16 @@ export default function Experience() {
                 </div>
               </div>
 
+              {/* Summary (hidden on mobile) */}
               <div
-              className="experience-summary mt-3 text-sm text-slate-700 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: it.summary }}
-            ></div>
+                className="experience-summary mt-3 text-sm text-slate-700 leading-relaxed hidden sm:block"
+                dangerouslySetInnerHTML={{ __html: it.summary }}
+              ></div>
             </div>
 
-            {/* Extend the timeline line except for last item */}
+            {/* Timeline line (desktop only) */}
             {idx !== items.length - 1 && (
-              <span className="absolute left-[4px] top-6 bottom-0 w-[2px] bg-slate-200"></span>
+              <span className="hidden sm:block absolute left-[4px] top-6 bottom-0 w-[2px] bg-slate-200"></span>
             )}
           </div>
         ))}
