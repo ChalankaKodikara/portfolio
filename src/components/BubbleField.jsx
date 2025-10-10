@@ -1,59 +1,51 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from "react";
 
-// Simple parallax bubbles using CSS variables and scroll listener
-export default function BubbleField({ count = 10, color = '#06b6d4' }) {
-  const ref = useRef(null)
+export default function BubbleField({
+  color = "#2476b3", // calm blue tone
+  opacity = 1,
+  speed = 0.2,
+}) {
+  const ref = useRef(null);
 
   useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const onScroll = () => {
-      const y = window.scrollY || window.pageYOffset
-      el.style.setProperty('--scroll', String(y))
-    }
-    const onMove = (e) => {
-      const glow = document.getElementById('cursor-glow')
-      if (glow) {
-        glow.style.setProperty('--mx', e.clientX + 'px')
-        glow.style.setProperty('--my', e.clientY + 'px')
-      }
-    }
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('mousemove', onMove, { passive: true })
-    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('mousemove', onMove) }
-  }, [])
+    const el = ref.current;
+    if (!el) return;
 
-  const bubbles = Array.from({ length: count }).map((_, i) => {
-    const size = 40 + ((i * 37) % 120)
-    const left = (i * 97) % 100
-    const top = (i * 53) % 100
-    const depth = 0.3 + ((i * 29) % 70) / 100 // 0.3 – 1.0
-    const delay = (i * 0.12) % 3
-    return (
-      <span
-        key={i}
-        className="absolute rounded-full opacity-20 will-change-transform"
-        style={{
-          width: size,
-          height: size,
-          left: `${left}%`,
-          top: `${top}%`,
-          background: color,
-          transform: `translate3d(0, calc(var(--scroll,0px) * ${depth * 0.06}px), 0)`,
-          animation: `floatY ${5 + depth * 5}s ease-in-out ${delay}s infinite alternate`,
-          filter: 'blur(0.3px)'
-        }}
-      />
-    )
-  })
+    const onScroll = () => {
+      const y = window.scrollY || window.pageYOffset;
+      el.style.setProperty("--scroll", String(y));
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <div ref={ref} className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-      <style>{`@keyframes floatY{from{transform:translate3d(0,calc(var(--scroll,0px)*var(--d,0.04)),0)}to{transform:translate3d(0,calc(var(--scroll,0px)*var(--d,0.04) - 20px),0)}}`}</style>
-      {bubbles}
+    <div
+      ref={ref}
+      className="absolute inset-0 -z-10 overflow-hidden pointer-events-none"
+      aria-hidden="true"
+    >
+      <svg
+        viewBox="0 0 1600 600"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-auto"
+        style={{
+          transform: `translate3d(0, calc(var(--scroll, 0px) * ${speed}), 0)`,
+          transition: "transform 0.2s ease-out",
+        }}
+      >
+        <path
+          fill={color}
+          fillOpacity={opacity}
+          d="M250 200c100-150 300-150 400 0 100 150 400 150 500 0 100-150 300-150 450 0v400H0V200z"
+        />
+        <circle cx="150" cy="150" r="80" fill={color} fillOpacity={opacity} />
+        <circle cx="800" cy="550" r="200" fill={color} fillOpacity={opacity} />
+        <circle cx="1300" cy="100" r="120" fill={color} fillOpacity={opacity} />
+        <circle cx="1550" cy="250" r="70" fill={color} fillOpacity={opacity} />
+        <circle cx="1400" cy="500" r="150" fill={color} fillOpacity={opacity} />
+      </svg>
     </div>
-  )
+  );
 }
-
-

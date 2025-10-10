@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { motion, useAnimation } from "framer-motion";
+import { useInView } from "react-intersection-observer";
 
 export default function Hero() {
   const [heroData, setHeroData] = useState({
@@ -13,7 +15,7 @@ export default function Hero() {
 
   const API_BASE = "http://localhost:4000/api";
 
-  // 🔹 Fetch hero data from backend
+  // 🧩 Fetch hero data from backend
   useEffect(() => {
     fetch(`${API_BASE}/hero`)
       .then((res) => res.json())
@@ -21,6 +23,7 @@ export default function Hero() {
       .catch((err) => console.error("Error loading hero:", err));
   }, []);
 
+  // 🧠 Messages for typewriter
   const messages = heroData.texts?.length
     ? heroData.texts
     : [
@@ -28,6 +31,7 @@ export default function Hero() {
         "I'm a Software Engineer and Graphic Designer",
       ];
 
+  // 🖼️ Image list
   const images =
     heroData.images?.length > 0
       ? heroData.images.map((img) =>
@@ -35,11 +39,10 @@ export default function Hero() {
         )
       : [];
 
-  // 🧠 Typewriter Effect
+  // ✍️ Typewriter Effect
   useEffect(() => {
     if (!messages.length) return;
     let timeout;
-
     if (typingPhase === "typing") {
       if (displayText.length < messages[messageIndex].length) {
         timeout = setTimeout(() => {
@@ -64,11 +67,10 @@ export default function Hero() {
         }, 500);
       }
     }
-
     return () => clearTimeout(timeout);
   }, [displayText, typingPhase, messageIndex, messages]);
 
-  // 🔁 Auto-slide through all images
+  // 🔁 Image Slider Auto-change
   useEffect(() => {
     if (!images.length) return;
     const timer = setInterval(() => {
@@ -77,37 +79,81 @@ export default function Hero() {
     return () => clearInterval(timer);
   }, [images.length]);
 
-  // 🧭 Manual navigation
+  // 🧭 Manual slide navigation
   const handleIndicatorClick = (i) => {
     setIndex(i);
+  };
+
+  // 🎞️ Scroll-triggered animations
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
+
+  useEffect(() => {
+    if (inView) controls.start("visible");
+  }, [inView, controls]);
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8, ease: "easeOut" },
+    },
+  };
+
+  const fadeLeft = {
+    hidden: { opacity: 0, x: 40 },
+    visible: { opacity: 1, x: 0, transition: { duration: 1, ease: "easeOut" } },
   };
 
   return (
     <section
       id="home"
-      className="relative flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto px-6 sm:px-10 py-20 text-slate-900 overflow-hidden"
+      ref={ref}
+      className="relative flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto px-6 sm:px-10 py-24 text-slate-900 overflow-hidden"
     >
-      {/* ==== Left Content ==== */}
-      <div className="relative z-10 max-w-xl text-center lg:text-left space-y-6">
-        <p className="text-sm uppercase tracking-[0.2em] text-slate-500">
+      {/* ==== LEFT CONTENT ==== */}
+      <motion.div
+        initial="hidden"
+        animate={controls}
+        variants={fadeUp}
+        className="relative z-10 max-w-xl text-center lg:text-left space-y-6"
+      >
+        <motion.p
+          variants={fadeUp}
+          transition={{ delay: 0.1 }}
+          className="text-sm uppercase tracking-[0.2em] text-slate-500"
+        >
           Software Engineer • Designer
-        </p>
+        </motion.p>
 
-        {/* 🔹 Dynamic Typewriter */}
-        <h1 className="text-5xl sm:text-6xl font-semibold tracking-tight leading-tight">
+        {/* 🧠 Typewriter Heading */}
+        <motion.h1
+          variants={fadeUp}
+          transition={{ delay: 0.3 }}
+          className="text-5xl sm:text-6xl font-semibold tracking-tight leading-tight"
+        >
           <span className="border-r-2 border-slate-800 pr-1 animate-pulse">
             {displayText}
           </span>
-        </h1>
+        </motion.h1>
 
-        {/* 🔹 Description from backend */}
-        <p className="text-slate-600 text-lg leading-relaxed max-w-md mx-auto lg:mx-0">
+        {/* ✍️ Description */}
+        <motion.p
+          variants={fadeUp}
+          transition={{ delay: 0.5 }}
+          className="text-slate-600 text-lg leading-relaxed max-w-md mx-auto lg:mx-0"
+        >
           {heroData.description ||
             "I craft scalable, high-performance software systems with a passion for clean design, seamless user experience, and reliable architecture."}
-        </p>
+        </motion.p>
 
         {/* 🔹 Buttons */}
-        <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
+        <motion.div
+          variants={fadeUp}
+          transition={{ delay: 0.7 }}
+          className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4"
+        >
           <a
             href="#projects"
             className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-5 py-2.5 font-semibold shadow-sm hover:bg-slate-800 transition"
@@ -120,11 +166,16 @@ export default function Hero() {
           >
             💬 Contact Me
           </a>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
-      {/* ==== Right Image Slider ==== */}
-      <div className="relative mt-12 lg:mt-0">
+      {/* ==== RIGHT IMAGE SLIDER ==== */}
+      <motion.div
+        initial="hidden"
+        animate={controls}
+        variants={fadeLeft}
+        className="relative mt-12 lg:mt-0"
+      >
         {/* Accent blobs */}
         <div className="absolute -top-10 -left-10 w-72 h-72 bg-cyan-400/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-0 w-64 h-64 bg-fuchsia-300/30 rounded-full blur-3xl"></div>
@@ -133,13 +184,13 @@ export default function Hero() {
         <div className="relative aspect-[4/5] w-72 sm:w-80 lg:w-96 overflow-hidden rounded-[2rem] backdrop-blur-lg shadow-lg">
           {images.length > 0 ? (
             images.map((img, i) => (
-              <img
+              <motion.img
                 key={i}
                 src={img}
                 alt={`Slide ${i + 1}`}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-                  index === i ? "opacity-100" : "opacity-0"
-                }`}
+                className="absolute inset-0 w-full h-full object-cover"
+                animate={{ opacity: index === i ? 1 : 0 }}
+                transition={{ duration: 1, ease: "easeInOut" }}
               />
             ))
           ) : (
@@ -149,11 +200,19 @@ export default function Hero() {
           )}
 
           {/* Floating accents */}
-          <div className="absolute -top-3 -right-3 w-10 h-10 border-4 border-yellow-400 rounded-full"></div>
-          <div className="absolute bottom-8 -left-4 w-10 h-10 border-4 border-rose-400 rounded-full rotate-45"></div>
+          <motion.div
+            className="absolute -top-3 -right-3 w-10 h-10 border-4 border-yellow-400 rounded-full"
+            animate={{ rotate: [0, 15, -15, 0] }}
+            transition={{ repeat: Infinity, duration: 4 }}
+          />
+          <motion.div
+            className="absolute bottom-8 -left-4 w-10 h-10 border-4 border-rose-400 rounded-full rotate-45"
+            animate={{ y: [0, -10, 0] }}
+            transition={{ repeat: Infinity, duration: 3 }}
+          />
         </div>
 
-        {/* 🔹 Custom Slider Indicators */}
+        {/* 🔹 Slider Dots */}
         {images.length > 1 && (
           <div className="flex justify-center gap-2 mt-6">
             {images.map((_, i) => (
@@ -169,7 +228,7 @@ export default function Hero() {
             ))}
           </div>
         )}
-      </div>
+      </motion.div>
     </section>
   );
 }

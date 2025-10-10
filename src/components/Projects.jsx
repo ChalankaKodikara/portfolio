@@ -1,69 +1,134 @@
 import { useEffect, useState } from "react";
+import { motion, useAnimation } from "framer-motion";
+import { useInView } from "react-intersection-observer";
 import { API_BASE } from "../lib/api.js";
 
 export default function Projects() {
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
-  const perPage = 3; // ✅ Show 3 projects per page
+  const perPage = 3;
 
+  // Animation setup
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ threshold: 0.2, triggerOnce: true });
+
+  useEffect(() => {
+    if (inView) controls.start("visible");
+  }, [inView, controls]);
+
+  // Variants
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: { staggerChildren: 0.15, delayChildren: 0.2 },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
+  };
+
+  // Fetch data
   useEffect(() => {
     fetch(`${API_BASE}/projects`)
       .then((res) => res.json())
-      .then((data) => setItems(data.reverse())) // show newest first
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setItems(data.reverse());
+        } else {
+          console.error("Unexpected API response:", data);
+          setItems([]);
+        }
+      })
       .catch((err) => console.error("Error loading projects:", err));
   }, []);
 
-  // Pagination logic
+  // Pagination
   const totalPages = Math.ceil(items.length / perPage);
   const paginated = items.slice((page - 1) * perPage, page * perPage);
 
   return (
-    <section id="projects" className="mx-auto max-w-6xl px-4 sm:px-6 py-16">
-      <h2 className="text-2xl sm:text-3xl font-semibold">Featured Projects</h2>
-      <p className="mt-3 text-slate-600 max-w-2xl">
-        A curated collection of recent software and creative projects showcasing
-        my work in full-stack development, design, and engineering.
-      </p>
+    <section
+      id="projects"
+      ref={ref}
+      className="mx-auto max-w-6xl px-4 sm:px-6 py-16"
+    >
+      {/* ==== Section Header ==== */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900">
+          Featured Projects
+        </h2>
+        <p className="mt-3 text-slate-600 max-w-2xl">
+          A curated collection of recent software and creative projects
+          showcasing my work in full-stack development, design, and engineering.
+        </p>
+      </motion.div>
 
-      {/* Project cards */}
-      <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300">
+      {/* ==== Animated Cards ==== */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate={inView ? "visible" : "hidden"}
+        className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
         {paginated.length > 0 ? (
           paginated.map((it) => (
-            <a
+            <motion.a
               key={it.id}
               href={`/project/${it.id}`}
-              className="group relative rounded-xl border border-slate-200 bg-white hover:shadow-lg transition overflow-hidden"
+              variants={cardVariants}
+              className="group relative rounded-xl border border-slate-200 bg-white hover:shadow-xl transition-all duration-300 overflow-hidden"
             >
               {it.localImage ? (
                 <img
                   src={`http://localhost:4000${it.localImage}`}
                   alt={it.title}
-                  className="aspect-video object-cover"
+                  className="aspect-video object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               ) : (
                 <div className="aspect-video bg-gradient-to-br from-cyan-500/10 to-fuchsia-500/10" />
               )}
+
               <div className="p-4">
                 <div className="text-xs uppercase tracking-wide text-slate-500">
                   {it.category || "General"}
                 </div>
-                <h3 className="font-semibold group-hover:text-slate-900 transition">
+                <h3 className="font-semibold group-hover:text-slate-900 transition-colors">
                   {it.title}
                 </h3>
                 <p className="mt-1 text-sm text-slate-600 line-clamp-3">
                   {it.description}
                 </p>
               </div>
-            </a>
+            </motion.a>
           ))
         ) : (
-          <p className="text-slate-500">No projects found.</p>
+          <motion.p
+            variants={cardVariants}
+            className="text-slate-500 col-span-full text-center py-10"
+          >
+            No projects found.
+          </motion.p>
         )}
-      </div>
+      </motion.div>
 
-      {/* Pagination controls */}
+      {/* ==== Pagination ==== */}
       {totalPages > 1 && (
-        <div className="mt-10 flex items-center justify-center gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="mt-10 flex items-center justify-center gap-4"
+        >
           <button
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
             disabled={page === 1}
@@ -91,7 +156,7 @@ export default function Projects() {
           >
             Next →
           </button>
-        </div>
+        </motion.div>
       )}
     </section>
   );
