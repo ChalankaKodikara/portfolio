@@ -42,7 +42,7 @@ export default function Experience() {
                 {it.companyLogo && (
                   <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-slate-50 ring-1 ring-slate-200 mx-auto sm:mx-0">
                     <img
-                      src={`http://localhost:4000${it.companyLogo}`}
+                      src={`https://back-chalanka.casknet.dev${it.companyLogo}`}
                       alt={it.company}
                       className="w-full h-full object-cover"
                     />
