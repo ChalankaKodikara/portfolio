@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_BASE = "https://back-chalanka.casknet.dev/api";
+const API_BASE = "http://localhost:4000/api";
 
 export default function Admin() {
   const [items, setItems] = useState([]);
@@ -185,7 +185,7 @@ export default function Admin() {
                 <img
                   src={
                     img.startsWith("/uploads")
-                      ? `https://back-chalanka.casknet.dev${img}`
+                      ? `http://localhost:4000${img}`
                       : img
                   }
                   alt={`Hero ${i + 1}`}

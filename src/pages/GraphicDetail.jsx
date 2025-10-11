@@ -83,7 +83,7 @@ export default function GraphicDetail({ id }) {
       {mainImage && (
         <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 shadow-lg">
           <img
-            src={`https://back-chalanka.casknet.dev${mainImage}`}
+            src={`http://localhost:4000${mainImage}`}
             alt={title}
             className="w-full object-cover aspect-[16/9]"
           />
@@ -110,7 +110,7 @@ export default function GraphicDetail({ id }) {
             {gallery.map((img, i) => (
               <img
                 key={i}
-                src={`https://back-chalanka.casknet.dev${img}`}
+                src={`http://localhost:4000${img}`}
                 alt={`Gallery ${i + 1}`}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
                   index === i ? "opacity-100" : "opacity-0"
@@ -142,7 +142,7 @@ export default function GraphicDetail({ id }) {
               {gallery.map((img, i) => (
                 <img
                   key={i}
-                  src={`https://back-chalanka.casknet.dev${img}`}
+                  src={`http://localhost:4000${img}`}
                   alt={`Thumbnail ${i + 1}`}
                   onClick={() => setIndex(i)}
                   className={`rounded-lg object-cover cursor-pointer border transition hover:scale-105 hover:shadow-md ${

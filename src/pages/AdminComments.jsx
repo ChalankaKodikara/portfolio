@@ -6,7 +6,7 @@ export default function AdminComments() {
   const [lastImage, setLastImage] = useState(null);
   const fileInputRef = useRef(null);
 
-  const API = "https://back-chalanka.casknet.dev/api/comments";
+  const API = "http://localhost:4000/api/comments";
 
   // Fetch all comments
   useEffect(() => {
@@ -148,7 +148,7 @@ export default function AdminComments() {
           >
             {it.localImage ? (
               <img
-                src={`https://back-chalanka.casknet.dev${it.localImage}`}
+                src={`http://localhost:4000${it.localImage}`}
                 alt={it.title}
                 className="h-12 w-12 rounded-full object-cover ring-1 ring-slate-200"
               />

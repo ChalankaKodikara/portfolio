@@ -33,8 +33,8 @@ export default function AdminProjects() {
     gallery: [], // ✅ new for graphics
   });
 
-  const API_SOFTWARE = "https://back-chalanka.casknet.dev/api/projects";
-  const API_GRAPHICS = "https://back-chalanka.casknet.dev/api/graphics";
+  const API_SOFTWARE = "http://localhost:4000/api/projects";
+  const API_GRAPHICS = "http://localhost:4000/api/graphics";
 
   // 🔹 Fetch all projects (software + graphics)
   useEffect(() => {
@@ -208,12 +208,12 @@ export default function AdminProjects() {
 
         setLastImage(
           data.mainImage
-            ? `https://back-chalanka.casknet.dev${data.mainImage}`
+            ? `http://localhost:4000${data.mainImage}`
             : null
         );
         setGalleryPreview(
           (data.gallery || []).map(
-            (g) => `https://back-chalanka.casknet.dev${g}`
+            (g) => `http://localhost:4000${g}`
           )
         );
       } else {
@@ -235,7 +235,7 @@ export default function AdminProjects() {
 
         setLastImage(
           data.localImage
-            ? `https://back-chalanka.casknet.dev${data.localImage}`
+            ? `http://localhost:4000${data.localImage}`
             : null
         );
       }
@@ -484,7 +484,7 @@ export default function AdminProjects() {
 
             {it.localImage || it.mainImage ? (
               <img
-                src={`https://back-chalanka.casknet.dev${
+                src={`http://localhost:4000${
                   it.localImage || it.mainImage
                 }`}
                 alt={it.title}

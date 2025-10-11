@@ -50,7 +50,7 @@ export default function NewsDetail({ id }) {
       {news.localImage && (
         <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
           <img
-            src={`https://back-chalanka.casknet.dev${news.localImage}`}
+            src={`http://localhost:4000${news.localImage}`}
             alt={news.title}
             className="w-full object-cover aspect-[21/9]"
           />

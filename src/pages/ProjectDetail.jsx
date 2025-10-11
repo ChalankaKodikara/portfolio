@@ -95,7 +95,7 @@ export default function ProjectDetail({ id }) {
       {localImage && (
         <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
           <img
-            src={`https://back-chalanka.casknet.dev${localImage}`}
+            src={`http://localhost:4000${localImage}`}
             alt={title}
             className="w-full object-cover aspect-[21/9]"
           />

@@ -13,7 +13,7 @@ export default function Hero() {
   const [typingPhase, setTypingPhase] = useState("typing");
   const [messageIndex, setMessageIndex] = useState(0);
 
-  const API_BASE = "https://back-chalanka.casknet.dev/api";
+  const API_BASE = "http://localhost:4000/api";
 
   // 🧩 Fetch hero data
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Hero() {
   const images =
     heroData.images?.length > 0
       ? heroData.images.map((img) =>
-          img.startsWith("http") ? img : `https://back-chalanka.casknet.dev${img}`
+          img.startsWith("http") ? img : `http://localhost:4000${img}`
         )
       : [];
 
@@ -128,7 +128,7 @@ export default function Hero() {
         <motion.h1
           variants={fadeUp}
           transition={{ delay: 0.3 }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-tight min-h-[4.5rem] sm:min-h-[5rem] md:min-h-[6rem]"
+          className="ml-1 mr-1 text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-tight min-h-[4.5rem] sm:min-h-[5rem] md:min-h-[6rem]"
         >
           <span className="border-r-2 border-slate-800 pr-1 animate-pulse inline-block min-w-[20ch] text-center">
             {displayText}
@@ -142,7 +142,7 @@ export default function Hero() {
           className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-md mx-auto lg:mx-0"
         >
           {heroData.description ||
-            "I craft scalable, high-performance software systems with a passion for clean design, seamless user experience, and reliable architecture."}
+            "I build reliable, high-performance digital systems that blend clean architecture with purposeful design. My work focuses on crafting scalable web and mobile solutions engineered for performance, designed for users, and driven by real world impac"}
         </motion.p>
 
         {/* 🔹 Buttons */}
