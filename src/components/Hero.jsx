@@ -23,7 +23,7 @@ export default function Hero() {
       .catch((err) => console.error("Error loading hero:", err));
   }, []);
 
-  // 🧠 Messages for typewriter
+  // 🧠 Typewriter messages
   const messages = heroData.texts?.length
     ? heroData.texts
     : [
@@ -35,11 +35,11 @@ export default function Hero() {
   const images =
     heroData.images?.length > 0
       ? heroData.images.map((img) =>
-          img.startsWith("http") ? img : `https://back-chalanka.casknet.dev${img}`
+          img.startsWith("http") ? img : `${API_BASE}${img}`
         )
       : [];
 
-  // ✍️ Typewriter Effect
+  // ✍️ Typewriter logic
   useEffect(() => {
     if (!messages.length) return;
     let timeout;
@@ -81,7 +81,7 @@ export default function Hero() {
 
   const handleIndicatorClick = (i) => setIndex(i);
 
-  // 🎞️ Animation setup
+  // 🎞️ Animations
   const controls = useAnimation();
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
 
@@ -100,66 +100,80 @@ export default function Hero() {
 
   const fadeLeft = {
     hidden: { opacity: 0, x: 40 },
-    visible: { opacity: 1, x: 0, transition: { duration: 1, ease: "easeOut" } },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 1, ease: "easeOut" },
+    },
   };
 
   return (
     <section
       id="home"
       ref={ref}
-      className="relative flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto px-6 sm:px-10 py-20 lg:py-28 text-slate-900 overflow-hidden"
+      className="relative flex flex-col-reverse lg:flex-row items-center justify-between 
+                 max-w-7xl mx-auto px-5 sm:px-8 md:px-10 py-16 sm:py-20 lg:py-28 
+                 text-slate-900 overflow-hidden"
     >
       {/* ==== LEFT CONTENT ==== */}
       <motion.div
         initial="hidden"
         animate={controls}
         variants={fadeUp}
-        className="relative z-10 max-w-xl text-center lg:text-left space-y-6"
+        className="relative z-10 max-w-lg text-center lg:text-left space-y-5 sm:space-y-6"
       >
+        {/* Tagline */}
         <motion.p
           variants={fadeUp}
           transition={{ delay: 0.1 }}
-          className="text-xs sm:text-sm uppercase tracking-[0.2em] text-slate-500"
+          className="text-[0.7rem] sm:text-sm md:text-base uppercase tracking-[0.25em] text-slate-500"
         >
-          Developer• Designer
+          Developer • Designer
         </motion.p>
 
-        {/* 🧠 Typewriter Heading with fixed space */}
+        {/* Typewriter Text */}
         <motion.h1
           variants={fadeUp}
           transition={{ delay: 0.3 }}
-          className="ml-1 mr-1 text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-tight min-h-[4.5rem] sm:min-h-[5rem] md:min-h-[6rem]"
+          className="mx-auto lg:mx-0 text-[1.8rem] sm:text-[2.3rem] md:text-5xl lg:text-6xl 
+                     font-semibold tracking-tight leading-snug sm:leading-tight 
+                     min-h-[3.5rem] sm:min-h-[5rem] md:min-h-[6rem]"
         >
-          <span className="border-r-2 border-slate-800 pr-1 animate-pulse inline-block min-w-[20ch] text-center">
+          <span className="border-r-2 border-slate-800 pr-1 animate-pulse inline-block min-w-[16ch] text-center">
             {displayText}
           </span>
         </motion.h1>
 
-        {/* ✍️ Description */}
+        {/* Description */}
         <motion.p
           variants={fadeUp}
           transition={{ delay: 0.5 }}
-          className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-md mx-auto lg:mx-0"
+          className="text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed 
+                     max-w-sm sm:max-w-md mx-auto lg:mx-0"
         >
           {heroData.description ||
-            "I build reliable, high-performance digital systems that blend clean architecture with purposeful design. My work focuses on crafting scalable web and mobile solutions engineered for performance, designed for users, and driven by real world impac"}
+            "I build reliable, high-performance digital systems that blend clean architecture with purposeful design. My work focuses on crafting scalable web and mobile solutions engineered for performance, designed for users, and driven by real-world impact."}
         </motion.p>
 
-        {/* 🔹 Buttons */}
+        {/* Buttons */}
         <motion.div
           variants={fadeUp}
           transition={{ delay: 0.7 }}
-          className="flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-4 pt-4"
+          className="flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-4 pt-3 sm:pt-5"
         >
           <a
             href="#projects"
-            className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-5 py-2.5 text-sm sm:text-base font-semibold shadow-sm hover:bg-slate-800 transition"
+            className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white 
+                       px-5 py-2 sm:px-6 sm:py-2.5 text-sm sm:text-base font-semibold 
+                       shadow-sm hover:bg-slate-800 transition"
           >
             🚀 View Projects
           </a>
           <a
             href="#contact"
-            className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-5 py-2.5 text-sm sm:text-base font-semibold text-slate-800 hover:bg-slate-50 transition"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 
+                       px-5 py-2 sm:px-6 sm:py-2.5 text-sm sm:text-base font-semibold 
+                       text-slate-800 hover:bg-slate-50 transition"
           >
             💬 Contact Me
           </a>
@@ -171,14 +185,23 @@ export default function Hero() {
         initial="hidden"
         animate={controls}
         variants={fadeLeft}
-        className="relative mt-12 lg:mt-0 w-full flex justify-center"
+        className="relative mb-10 lg:mb-0 w-full flex justify-center"
       >
-        {/* Accent blobs */}
-        <div className="absolute -top-10 -left-10 w-60 sm:w-72 h-60 sm:h-72 bg-cyan-400/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-56 sm:w-64 h-56 sm:h-64 bg-fuchsia-300/30 rounded-full blur-3xl"></div>
+        {/* Soft blobs */}
+        <div
+          className="absolute -top-10 -left-10 w-40 sm:w-56 md:w-64 h-40 sm:h-56 md:h-64 
+                        bg-cyan-400/30 rounded-full blur-3xl"
+        ></div>
+        <div
+          className="absolute bottom-0 right-0 w-40 sm:w-56 md:w-64 h-40 sm:h-56 md:h-64 
+                        bg-fuchsia-300/30 rounded-full blur-3xl"
+        ></div>
 
-        {/* Image container */}
-        <div className="relative aspect-[4/5] w-64 sm:w-72 md:w-80 lg:w-96 overflow-hidden rounded-[2rem] backdrop-blur-lg shadow-lg">
+        {/* Image */}
+        <div
+          className="relative aspect-[4/5] w-52 sm:w-64 md:w-72 lg:w-96 overflow-hidden 
+                        rounded-[1.75rem] sm:rounded-[2rem] backdrop-blur-lg shadow-lg"
+        >
           {images.length > 0 ? (
             images.map((img, i) => (
               <motion.img
@@ -198,18 +221,20 @@ export default function Hero() {
 
           {/* Floating accents */}
           <motion.div
-            className="absolute -top-3 -right-3 w-8 sm:w-10 h-8 sm:h-10 border-4 border-yellow-400 rounded-full"
+            className="absolute -top-3 -right-3 w-6 sm:w-8 md:w-10 h-6 sm:h-8 md:h-10 
+                       border-4 border-yellow-400 rounded-full"
             animate={{ rotate: [0, 15, -15, 0] }}
             transition={{ repeat: Infinity, duration: 4 }}
           />
           <motion.div
-            className="absolute bottom-8 -left-4 w-8 sm:w-10 h-8 sm:h-10 border-4 border-rose-400 rounded-full rotate-45"
+            className="absolute bottom-8 -left-4 w-6 sm:w-8 md:w-10 h-6 sm:h-8 md:h-10 
+                       border-4 border-rose-400 rounded-full rotate-45"
             animate={{ y: [0, -10, 0] }}
             transition={{ repeat: Infinity, duration: 3 }}
           />
         </div>
 
-        {/* 🔹 Slider Dots */}
+        {/* Slider dots */}
         {images.length > 1 && (
           <div className="flex justify-center gap-2 mt-6 absolute -bottom-10 left-1/2 -translate-x-1/2">
             {images.map((_, i) => (
@@ -218,7 +243,7 @@ export default function Hero() {
                 onClick={() => handleIndicatorClick(i)}
                 className={`transition-all duration-300 ${
                   index === i
-                    ? "w-8 h-3 rounded-full bg-slate-900"
+                    ? "w-7 h-3 rounded-full bg-slate-900"
                     : "w-3 h-3 rounded-full bg-slate-400/50 hover:bg-slate-600/70"
                 }`}
               />
