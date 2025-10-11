@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { API_BASE } from "../lib/api.js"; // ✅ Import your global base URL
 
 export default function AddComment() {
   const [form, setForm] = useState({ title: "", description: "", image: null });
@@ -6,7 +7,7 @@ export default function AddComment() {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
-  const API = "https://back-chalanka.casknet.dev/api/comments";
+  const API = `${API_BASE}/comments`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

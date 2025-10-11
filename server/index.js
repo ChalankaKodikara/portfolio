@@ -5,6 +5,8 @@ import path from "path";
 import bodyParser from "body-parser";
 import multer from "multer";
 import { fileURLToPath } from "url";
+import sharp from "sharp";
+import heicConvert from "heic-convert";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -392,27 +394,92 @@ app.delete("/api/photos/:id", (req, res) => {
 // ---------------------------------------------------------------------
 // 🧩 COMMENTS ENDPOINTS
 // ---------------------------------------------------------------------
-app.post("/api/comments", upload.single("image"), (req, res) => {
+app.post("/api/comments", upload.single("image"), async (req, res) => {
   try {
     const raw = req.body.data;
-    if (!raw)
+    if (!raw) {
       return res.status(400).json({ success: false, message: "Missing data" });
+    }
 
     const data = JSON.parse(raw);
     const id = data.id || Date.now().toString();
+    let outputPath;
 
-    if (req.file) data.localImage = `/uploads/comments/${req.file.filename}`;
+    // ---------------------------------
+    // 📸 If image uploaded
+    // ---------------------------------
+    if (req.file) {
+      const inputPath = req.file.path;
+      const originalName = req.file.originalname.toLowerCase();
 
+      try {
+        // 🟣 Convert HEIC → JPEG
+        if (originalName.endsWith(".heic") || originalName.endsWith(".heif")) {
+          console.log("🟣 Converting HEIC → JPEG...");
+          const inputBuffer = fs.readFileSync(inputPath);
+          const outputBuffer = await heicConvert({
+            buffer: inputBuffer,
+            format: "JPEG",
+            quality: 0.7,
+          });
+
+          const tempPath = inputPath.replace(/\.heic$/i, ".jpg");
+          fs.writeFileSync(tempPath, outputBuffer);
+          fs.unlinkSync(inputPath); // remove HEIC file
+
+          // set new path for compression
+          req.file.path = tempPath;
+        }
+
+        // 🧩 Compress & Resize Image — small dimensions (150x150)
+        console.log("🟢 Compressing and resizing image...");
+        const outputFilename = `compressed-${Date.now()}.jpg`;
+        outputPath = path.join(UPLOAD_COMMENTS, outputFilename);
+
+        await sharp(req.file.path)
+          .resize({
+            width: 150,
+            height: 150,
+            fit: "cover",
+          })
+          .jpeg({ quality: 70 })
+          .toFile(outputPath);
+
+        // 🧹 Safe cleanup
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (err) {
+          if (err.code !== "ENOENT" && err.code !== "EPERM") {
+            console.warn("⚠️ Failed to delete temp file:", err.message);
+          }
+        }
+
+        // ✅ Save relative path for client
+        data.localImage = `/uploads/comments/${path.basename(outputPath)}`;
+      } catch (err) {
+        console.error("❌ Image processing failed:", err);
+        return res.status(500).json({
+          success: false,
+          message: "Image compression failed",
+          error: err.message,
+        });
+      }
+    }
+
+    // ---------------------------------
+    // 💾 Save Comment JSON
+    // ---------------------------------
     const filePath = path.join(COMMENTS_DIR, `${id}.json`);
     fs.writeFileSync(filePath, JSON.stringify({ ...data, id }, null, 2));
 
+    console.log("✅ Comment saved:", id);
     res.json({ success: true, id, image: data.localImage });
   } catch (err) {
     console.error("❌ Error saving comment:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
-
 app.get("/api/comments", (req, res) => {
   try {
     const files = fs.readdirSync(COMMENTS_DIR);
@@ -636,13 +703,11 @@ app.delete("/api/graphics/:id", (req, res) => {
 
     const data = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
 
-    // Delete main image
     if (data.mainImage) {
       const imgPath = path.join(__dirname, data.mainImage.replace(/^\/+/, ""));
       if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
     }
 
-    // Delete gallery images
     if (Array.isArray(data.gallery)) {
       for (const img of data.gallery) {
         const imgPath = path.join(__dirname, img.replace(/^\/+/, ""));
@@ -657,6 +722,28 @@ app.delete("/api/graphics/:id", (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+
+// ---------------------------------------------------------------------
+// 🖼️ FIX: Serve uploaded images correctly (even via /api/uploads/...)
+// ---------------------------------------------------------------------
+app.get(
+  ["/uploads/:folder/:filename", "/api/uploads/:folder/:filename"],
+  (req, res) => {
+    try {
+      const { folder, filename } = req.params;
+      const imagePath = path.join(__dirname, "uploads", folder, filename);
+      if (!fs.existsSync(imagePath)) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Image not found" });
+      }
+      res.sendFile(imagePath);
+    } catch (err) {
+      console.error("Error serving image:", err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+);
 
 // ---------------------------------------------------------------------
 // 🚀 Start Server

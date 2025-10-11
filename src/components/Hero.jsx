@@ -15,7 +15,7 @@ export default function Hero() {
 
   const API_BASE = "https://back-chalanka.casknet.dev/api";
 
-  // 🧩 Fetch hero data from backend
+  // 🧩 Fetch hero data
   useEffect(() => {
     fetch(`${API_BASE}/hero`)
       .then((res) => res.json())
@@ -35,9 +35,7 @@ export default function Hero() {
   const images =
     heroData.images?.length > 0
       ? heroData.images.map((img) =>
-          img.startsWith("http")
-            ? img
-            : `https://back-chalanka.casknet.dev${img}`
+          img.startsWith("http") ? img : `https://back-chalanka.casknet.dev${img}`
         )
       : [];
 
@@ -72,7 +70,7 @@ export default function Hero() {
     return () => clearTimeout(timeout);
   }, [displayText, typingPhase, messageIndex, messages]);
 
-  // 🔁 Image Slider Auto-change
+  // 🔁 Auto image change
   useEffect(() => {
     if (!images.length) return;
     const timer = setInterval(() => {
@@ -81,12 +79,9 @@ export default function Hero() {
     return () => clearInterval(timer);
   }, [images.length]);
 
-  // 🧭 Manual slide navigation
-  const handleIndicatorClick = (i) => {
-    setIndex(i);
-  };
+  const handleIndicatorClick = (i) => setIndex(i);
 
-  // 🎞️ Scroll-triggered animations
+  // 🎞️ Animation setup
   const controls = useAnimation();
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
 
@@ -112,7 +107,7 @@ export default function Hero() {
     <section
       id="home"
       ref={ref}
-      className="relative flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto px-6 sm:px-10 py-24 text-slate-900 overflow-hidden"
+      className="relative flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto px-6 sm:px-10 py-20 lg:py-28 text-slate-900 overflow-hidden"
     >
       {/* ==== LEFT CONTENT ==== */}
       <motion.div
@@ -124,18 +119,18 @@ export default function Hero() {
         <motion.p
           variants={fadeUp}
           transition={{ delay: 0.1 }}
-          className="text-sm uppercase tracking-[0.2em] text-slate-500"
+          className="text-xs sm:text-sm uppercase tracking-[0.2em] text-slate-500"
         >
-          Software Engineer • Designer
+          Developer• Designer
         </motion.p>
 
-        {/* 🧠 Typewriter Heading */}
+        {/* 🧠 Typewriter Heading with fixed space */}
         <motion.h1
           variants={fadeUp}
           transition={{ delay: 0.3 }}
-          className="text-5xl sm:text-6xl font-semibold tracking-tight leading-tight"
+          className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-tight min-h-[4.5rem] sm:min-h-[5rem] md:min-h-[6rem]"
         >
-          <span className="border-r-2 border-slate-800 pr-1 animate-pulse">
+          <span className="border-r-2 border-slate-800 pr-1 animate-pulse inline-block min-w-[20ch] text-center">
             {displayText}
           </span>
         </motion.h1>
@@ -144,7 +139,7 @@ export default function Hero() {
         <motion.p
           variants={fadeUp}
           transition={{ delay: 0.5 }}
-          className="text-slate-600 text-lg leading-relaxed max-w-md mx-auto lg:mx-0"
+          className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-md mx-auto lg:mx-0"
         >
           {heroData.description ||
             "I craft scalable, high-performance software systems with a passion for clean design, seamless user experience, and reliable architecture."}
@@ -154,17 +149,17 @@ export default function Hero() {
         <motion.div
           variants={fadeUp}
           transition={{ delay: 0.7 }}
-          className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4"
+          className="flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-4 pt-4"
         >
           <a
             href="#projects"
-            className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-5 py-2.5 font-semibold shadow-sm hover:bg-slate-800 transition"
+            className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-5 py-2.5 text-sm sm:text-base font-semibold shadow-sm hover:bg-slate-800 transition"
           >
             🚀 View Projects
           </a>
           <a
             href="#contact"
-            className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-5 py-2.5 font-semibold text-slate-800 hover:bg-slate-50 transition"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-5 py-2.5 text-sm sm:text-base font-semibold text-slate-800 hover:bg-slate-50 transition"
           >
             💬 Contact Me
           </a>
@@ -176,14 +171,14 @@ export default function Hero() {
         initial="hidden"
         animate={controls}
         variants={fadeLeft}
-        className="relative mt-12 lg:mt-0"
+        className="relative mt-12 lg:mt-0 w-full flex justify-center"
       >
         {/* Accent blobs */}
-        <div className="absolute -top-10 -left-10 w-72 h-72 bg-cyan-400/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-fuchsia-300/30 rounded-full blur-3xl"></div>
+        <div className="absolute -top-10 -left-10 w-60 sm:w-72 h-60 sm:h-72 bg-cyan-400/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-56 sm:w-64 h-56 sm:h-64 bg-fuchsia-300/30 rounded-full blur-3xl"></div>
 
         {/* Image container */}
-        <div className="relative aspect-[4/5] w-72 sm:w-80 lg:w-96 overflow-hidden rounded-[2rem] backdrop-blur-lg shadow-lg">
+        <div className="relative aspect-[4/5] w-64 sm:w-72 md:w-80 lg:w-96 overflow-hidden rounded-[2rem] backdrop-blur-lg shadow-lg">
           {images.length > 0 ? (
             images.map((img, i) => (
               <motion.img
@@ -203,12 +198,12 @@ export default function Hero() {
 
           {/* Floating accents */}
           <motion.div
-            className="absolute -top-3 -right-3 w-10 h-10 border-4 border-yellow-400 rounded-full"
+            className="absolute -top-3 -right-3 w-8 sm:w-10 h-8 sm:h-10 border-4 border-yellow-400 rounded-full"
             animate={{ rotate: [0, 15, -15, 0] }}
             transition={{ repeat: Infinity, duration: 4 }}
           />
           <motion.div
-            className="absolute bottom-8 -left-4 w-10 h-10 border-4 border-rose-400 rounded-full rotate-45"
+            className="absolute bottom-8 -left-4 w-8 sm:w-10 h-8 sm:h-10 border-4 border-rose-400 rounded-full rotate-45"
             animate={{ y: [0, -10, 0] }}
             transition={{ repeat: Infinity, duration: 3 }}
           />
@@ -216,7 +211,7 @@ export default function Hero() {
 
         {/* 🔹 Slider Dots */}
         {images.length > 1 && (
-          <div className="flex justify-center gap-2 mt-6">
+          <div className="flex justify-center gap-2 mt-6 absolute -bottom-10 left-1/2 -translate-x-1/2">
             {images.map((_, i) => (
               <button
                 key={i}
