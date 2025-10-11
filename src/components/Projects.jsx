@@ -93,7 +93,7 @@ export default function Projects() {
               {it.localImage ? (
                 <div className="relative">
                   <img
-                    src={`http://localhost:4000${it.localImage}`}
+                    src={`https://back-chalanka.casknet.dev${it.localImage}`}
                     alt={it.title}
                     className="aspect-video w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />

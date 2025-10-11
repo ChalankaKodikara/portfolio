@@ -45,7 +45,7 @@ export default function Comments() {
           >
             {it.localImage ? (
               <img
-                src={`http://localhost:4000${it.localImage}`}
+                src={`https://back-chalanka.casknet.dev${it.localImage}`}
                 alt={it.title}
                 className="h-16 w-16 rounded-full object-cover ring-2 ring-slate-200 shadow-md mb-4"
               />
