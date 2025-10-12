@@ -9,13 +9,21 @@ import {
 } from "lucide-react";
 
 export default function Footer() {
+  // 🔹 Smooth scroll helper
+  const scrollToSection = (id) => {
+    const el = document.querySelector(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
-    <footer className="border-t border-slate-200 bg-white/80 backdrop-blur-md mt-16">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12 text-slate-700">
-        {/* === Top Section: Contact Info + Socials === */}
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 mb-10">
+    <footer className="border-t border-slate-200 bg-white/80 backdrop-blur-md mt-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-14 text-slate-700">
+        {/* === Top Section === */}
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 mb-12">
           {/* 📧 Contact Info */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold text-slate-900">Contact</h3>
             <FooterItem
               icon={<Mail size={18} />}
@@ -31,39 +39,48 @@ export default function Footer() {
           </div>
 
           {/* 🌐 Quick Links */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold text-slate-900">
               Quick Links
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#home" className="hover:text-blue-600 transition">
+                <button
+                  onClick={() => scrollToSection("#home")}
+                  className="hover:text-blue-600 transition"
+                >
                   Home
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#projects" className="hover:text-blue-600 transition">
+                <button
+                  onClick={() => scrollToSection("#projects")}
+                  className="hover:text-blue-600 transition"
+                >
                   Projects
-                </a>
+                </button>
               </li>
               <li>
-                <a
-                  href="#experience"
+                <button
+                  onClick={() => scrollToSection("#experience")}
                   className="hover:text-blue-600 transition"
                 >
                   Experience
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#contact" className="hover:text-blue-600 transition">
+                <button
+                  onClick={() => scrollToSection("#contact")}
+                  className="hover:text-blue-600 transition"
+                >
                   Contact
-                </a>
+                </button>
               </li>
             </ul>
           </div>
 
           {/* 🔗 Social Media */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold text-slate-900">Connect</h3>
             <div className="flex items-center gap-4 mt-2">
               <SocialLink
@@ -90,9 +107,9 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* === Bottom Section: Copyright === */}
+        {/* === Bottom Section === */}
         <div className="flex flex-col sm:flex-row items-center justify-between border-t border-slate-200 pt-6 text-sm text-slate-500">
-          <p>
+          <p className="text-center sm:text-left">
             © {new Date().getFullYear()}{" "}
             <span className="font-medium text-slate-700">
               Chalanka Kodikara
@@ -100,7 +117,7 @@ export default function Footer() {
             . All rights reserved.
           </p>
 
-          <div className="mt-3 sm:mt-0">
+          <div className="mt-4 sm:mt-0">
             <a
               href="/files/cv.pdf"
               download="Chalanka_Kodikara_CV.pdf"
@@ -115,7 +132,7 @@ export default function Footer() {
   );
 }
 
-// 🔹 Small reusable contact item
+/* 🔹 Footer Contact Item */
 function FooterItem({ icon, text, href }) {
   const content = (
     <div className="flex items-center gap-3 text-sm">
@@ -135,7 +152,7 @@ function FooterItem({ icon, text, href }) {
   );
 }
 
-// 🔹 Small social link icon
+/* 🔹 Footer Social Icon */
 function SocialLink({ href, icon, label }) {
   return (
     <a
